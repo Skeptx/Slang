@@ -33,7 +33,7 @@ SlangLib::SlangLib(char connectionType) :
     }
 }
 
-string SlangLib :: wordleRead(int sock){
+string SlangLib::wordleRead(int sock){
 
 
         char *recvChar = (char *)malloc(10);
@@ -43,7 +43,7 @@ string SlangLib :: wordleRead(int sock){
 	return recv;
 }
 
-void SlangLib :: wordleWrite(int sock, string message){
+void SlangLib::wordleWrite(int sock, string message){
 
 
     int sending = write(sock, message.c_str(), message.length());
@@ -128,7 +128,7 @@ void SlangLib::init(string hostname, int portNumber){
     }
 }
 
-int SlangLib :: errorChecking(int recvCheck,int connectCheck, int sockCheck){
+int SlangLib::errorChecking(int recvCheck,int connectCheck, int sockCheck){
     if(recvCheck == -1){
         perror("Error in recieving message\n");
         return -1;
