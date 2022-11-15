@@ -80,7 +80,7 @@ void SlangLib :: connection(){
     }
 
     ((struct sockaddr_in *)baseConnection->ai_addr)->sin_port = htons(portNumber);
-    int connection = connect(sock, (struct sockaddr *)baseConnection->ai_addr,sizeof(sock_addr));
+    int connection = connect(sock, (struct sockaddr *)baseConnection->ai_addr,sizeof(struct sockaddr));
     if(connection == -1){
         perror("Connection Error\n:");
         freeaddrinfo(hints);
@@ -88,7 +88,7 @@ void SlangLib :: connection(){
         exit(EXIT_FAILURE);
     }
     if(connectionType == 'S'){
-        int binding = bind(sock, (struct sock_addr *)&baseConnection, sizeof(sock_addr));
+        int binding = bind(sock, (struct sockaddr *)&baseConnection, sizeof(struct sockaddr));
         if(binding == -1){
             perror("Error in Bind Call:\n");
             freeaddrinfo(hints);
@@ -103,7 +103,7 @@ void SlangLib :: connection(){
             exit(EXIT_FAILURE);
         }
         while(true){
-            int accepting = accept(sock,(struct sockaddr *)&baseConnection, sizeof(struct_addr));
+            int accepting = accept(sock,(struct sockaddr *)&baseConnection, sizeof(struct sockaddr));
             if(accepting == -1){
                 perror("Error in Accepting Connections:\n");
                 freeaddrinfo(hints);
