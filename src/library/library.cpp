@@ -55,8 +55,8 @@ void SlangLib::wordleWrite(int sock, string message){
 }
 
 void SlangLib::init(string hostname, int portNumber){
-	hostname = h;
-	portNumber = p;
+	this.hostname = hostname;
+	this.portNumber = portNumber;
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == -1){
         perror("Socket Error\n");
