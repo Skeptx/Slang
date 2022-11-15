@@ -1,4 +1,3 @@
-/********************************************/
 /*   Author: Isaiah Rovenolt                */
 /*   Major: Computer Science                */
 /*   Creation Date: 11/8/2022               */
@@ -20,9 +19,7 @@
 #include <netdb.h>
 #include "library.h"
 
-SlangLib::SlangLib(char connectionType, int portNumber, string hostname) {
-
-
+SlangLib::SlangLib(char connectionType, int portNumber,string hostname){
     switch(connectionType){
         case 's':
         case 'S':
@@ -38,6 +35,7 @@ SlangLib::SlangLib(char connectionType, int portNumber, string hostname) {
     }
     m_portNumber = portNumber;
     m_hostname = hostname;
+    connection();
 }
 
 
@@ -52,8 +50,8 @@ ssize_t SlangLib :: wordleRead(int sock){
 }
 
 ssize_t SlangLib :: wordleWrite(int sock){
-    char *sayHello = "HELLO";
-    int sending = send(sock,sayHello,strlen(sayHello),0);
+    string sayHello = "HELLO";
+    int sending = send(sock,sayHello.c_str(),sayHello.length(),0);
     if(sending == -1){
         perror("Error Sending Message");
         exit(EXIT_FAILURE);
@@ -67,23 +65,23 @@ void SlangLib :: connection(){
         perror("Socket Error\n");
         exit(EXIT_FAILURE);
     }
-    struct sockaddr_in *baseConnection = (struct addrinfo *)malloc(sizeof(struct addrinfo));
-    struct sockaddr_in *serverInfo = (struct addrinfo *)malloc(sizeof(struct addrinfo));
-    baseConnection->ai_family = AF_INET;
-    baseConnection->ai_flags = 0;
-    baseConnection->ai_protocol = 0;
-    baseConnection->ai_socktype = SOCK_STREAM;
+    struct addrinfo *hints = (struct addrinfo *)malloc(sizeof(struct addrinfo));
+    struct addrinfo *baseConnection = (struct addrinfo *)malloc(sizeof(struct addrinfo));
+    hints->ai_family = AF_INET;
+    hints->ai_flags = 0;
+    hints->ai_protocol = 0;
+    hints->ai_socktype = SOCK_STREAM;
 
-    int getConnectionInfo = getaddrinfo(m_hostname, NULL, hints, &baseConnection);
-    if(getConnectionInfo == -1){
-        printf("Error in Calling getaddrinfo: %s\n", gai_strerror(err));
+    int getConnectionInfo = getaddrinfo(m_hostname.c_str(), NULL, hints, &baseConnection);
+    if(getConnectionInfo){
+        printf("Error in Calling getaddrinfo: %s\n", gai_strerror(getConnectionInfo));
         freeaddrinfo(hints);
         freeaddrinfo(baseConnection);
         exit(EXIT_FAILURE);
     }
 
     ((struct sockaddr_in *)baseConnection->ai_addr)->sin_port = htons(m_portNumber);
-    int connection = connect(sock, (struct sockaddr *)baseConnection->ai_addr,sizeof(sock_addr));
+    int connection = connect(sock, (struct sockaddr *)baseConnection->ai_addr,sizeof(struct sockaddr));
     if(connection == -1){
         perror("Connection Error\n:");
         freeaddrinfo(hints);
@@ -91,7 +89,7 @@ void SlangLib :: connection(){
         exit(EXIT_FAILURE);
     }
     if(m_connectionType == 'S'){
-        int binding = bind(sock, (struct sock_addr *)&baseConnection, sizeof(sock_addr));
+        int binding = bind(sock, (struct sockaddr *)&baseConnection, sizeof(struct sockaddr));
         if(binding == -1){
             perror("Error in Bind Call:\n");
             freeaddrinfo(hints);
@@ -105,8 +103,9 @@ void SlangLib :: connection(){
             freeaddrinfo(baseConnection);
             exit(EXIT_FAILURE);
         }
+        socklen_t socklen = sizeof(struct sockaddr);
         while(true){
-            int accepting = accept(sock,(struct sockaddr *)&baseConnection, sizeof(struct_addr));
+            int accepting = accept(sock,(struct sockaddr *)&baseConnection, &socklen);
             if(accepting == -1){
                 perror("Error in Accepting Connections:\n");
                 freeaddrinfo(hints);
@@ -134,6 +133,15 @@ int SlangLib :: errorChecking(int recvCheck,int connectCheck, int sockCheck){
 
     if(connectCheck == -1){
         perror("Error Connecting\n");
+        return -1;
+    } // check when call connect
+
+    if(sockCheck == -1){
+        perror("Error in Creating Socket\n");
+        return -1;
+    } // check when socket is created
+    return 0;
+}
         return -1;
     } // check when call connect
 
