@@ -25,7 +25,7 @@ SlangLib::SlangLib(char connectionType) :
         connectionType(toupper(connectionType)){
 
 
-    if(connectionType != 'C' || connectionType != 'S') {
+    if(connectionType != 'C' && connectionType != 'S') {
 
 
         cout << "ERROR: Invalid connection type!" << endl;
