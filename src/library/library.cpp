@@ -21,24 +21,22 @@
 #include <netdb.h>
 #include "library.h"
 
-SlangLib::SlangLib(char c){
-    switch(c){
-        case 's':
-        case 'S':
-            connectionType = 'S';
-			break;
-        case 'c':
-        case 'C':
-            connectionType = 'C';
-			break;
-        default:
-            cout << "Error: Invalid Connection Type" << endl;
-            exit(EXIT_FAILURE);
+SlangLib::SlangLib(char connectionType) :
+        connectionType(toupper(connectionType)){
+
+
+    if(connectionType != 'C' || connectionType != 'S') {
+
+
+        cout << "ERROR: Invalid connection type!" << endl;
+        exit(EXIT_FAILURE);
     }
 }
 
 string SlangLib :: wordleRead(int sock){
-    char *recvChar = (char *)malloc(10);
+
+
+        char *recvChar = (char *)malloc(10);
 	read(sock, recvChar, 9);
 	string recv(recvChar);
 	free(recvChar);
@@ -46,13 +44,17 @@ string SlangLib :: wordleRead(int sock){
 }
 
 void SlangLib :: wordleWrite(int sock, string message){
+
+
     int sending = write(sock, message.c_str(), message.length());
     if(sending == -1){
+
+
         perror("Error Sending Message");
     }
 }
 
-void SlangLib :: init(string h, int p){
+void SlangLib::init(string hostname, int portNumber){
 	hostname = h;
 	portNumber = p;
     int sock = socket(AF_INET, SOCK_STREAM, 0);
