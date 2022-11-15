@@ -64,8 +64,8 @@ void SlangLib :: connection(){
         perror("Socket Error\n");
         exit(EXIT_FAILURE);
     }
-    struct sockaddr_in baseConnection = (struct addrinfo *)malloc(sizeof(struct addrinfo));
-    struct sockaddr_in serverInfo = (struct addrinfo *)malloc(sizeof(struct addrinfo));
+    struct sockaddr_in *baseConnection = (struct addrinfo *)malloc(sizeof(struct addrinfo));
+    struct sockaddr_in *serverInfo = (struct addrinfo *)malloc(sizeof(struct addrinfo));
     baseConnection->ai_family = AF_INET;
     baseConnection->ai_flags = 0;
     baseConnection->ai_protocol = 0;
@@ -88,7 +88,7 @@ void SlangLib :: connection(){
         exit(EXIT_FAILURE);
     }
     if(connectionType == 'S'){
-        int binding = bind(sock, (struct_addr *)&baseConnection, sizeof(sock_addr));
+        int binding = bind(sock, (struct sock_addr *)&baseConnection, sizeof(sock_addr));
         if(binding == -1){
             perror("Error in Bind Call:\n");
             freeaddrinfo(hints);
