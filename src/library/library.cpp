@@ -1,3 +1,4 @@
+/********************************************/
 /*   Author: Isaiah Rovenolt                */
 /*   Major: Computer Science                */
 /*   Creation Date: 11/8/2022               */
@@ -19,23 +20,22 @@
 #include <netdb.h>
 #include "library.h"
 
-SlangLib::SlangLib(char connectionType, int portNumber,string hostname){
-    switch(connectionType){
+SlangLib::SlangLib(char c, int p, string h){
+    switch(c){
         case 's':
         case 'S':
-            m_connectionType = 'S';
-            break;
+            connectionType = 'S';
+			break;
         case 'c':
         case 'C':
-            m_connectionType = 'C';
-            break;
+            connectionType = 'C';
+			break;
         default:
             cout << "Error: Invalid Connection Type" << endl;
             exit(EXIT_FAILURE);
     }
-    m_portNumber = portNumber;
-    m_hostname = hostname;
-    connection();
+    portNumber = p;
+	hostname = h;
 }
 
 
@@ -56,7 +56,6 @@ ssize_t SlangLib :: wordleWrite(int sock){
         perror("Error Sending Message");
         exit(EXIT_FAILURE);
     }
-
 }
 
 void SlangLib :: connection(){
@@ -65,30 +64,21 @@ void SlangLib :: connection(){
         perror("Socket Error\n");
         exit(EXIT_FAILURE);
     }
-    struct addrinfo *hints = (struct addrinfo *)malloc(sizeof(struct addrinfo));
     struct addrinfo *baseConnection = (struct addrinfo *)malloc(sizeof(struct addrinfo));
+    struct addrinfo *hints = (struct addrinfo *)malloc(sizeof(struct addrinfo));
     hints->ai_family = AF_INET;
     hints->ai_flags = 0;
     hints->ai_protocol = 0;
     hints->ai_socktype = SOCK_STREAM;
-
-    int getConnectionInfo = getaddrinfo(m_hostname.c_str(), NULL, hints, &baseConnection);
+    int getConnectionInfo = getaddrinfo(hostname.c_str(), NULL, hints, &baseConnection);
     if(getConnectionInfo){
         printf("Error in Calling getaddrinfo: %s\n", gai_strerror(getConnectionInfo));
         freeaddrinfo(hints);
         freeaddrinfo(baseConnection);
         exit(EXIT_FAILURE);
     }
-
-    ((struct sockaddr_in *)baseConnection->ai_addr)->sin_port = htons(m_portNumber);
-    int connection = connect(sock, (struct sockaddr *)baseConnection->ai_addr,sizeof(struct sockaddr));
-    if(connection == -1){
-        perror("Connection Error\n:");
-        freeaddrinfo(hints);
-        freeaddrinfo(baseConnection);
-        exit(EXIT_FAILURE);
-    }
-    if(m_connectionType == 'S'){
+    ((struct sockaddr_in *)baseConnection->ai_addr)->sin_port = htons(portNumber);
+    if(connectionType == 'S'){
         int binding = bind(sock, (struct sockaddr *)&baseConnection, sizeof(struct sockaddr));
         if(binding == -1){
             perror("Error in Bind Call:\n");
@@ -103,7 +93,7 @@ void SlangLib :: connection(){
             freeaddrinfo(baseConnection);
             exit(EXIT_FAILURE);
         }
-        socklen_t socklen = sizeof(struct sockaddr);
+		socklen_t socklen = sizeof(struct sockaddr);
         while(true){
             int accepting = accept(sock,(struct sockaddr *)&baseConnection, &socklen);
             if(accepting == -1){
@@ -117,6 +107,13 @@ void SlangLib :: connection(){
         wordleRead(sock);
     }
     else{
+		int connection = connect(sock, (struct sockaddr *)baseConnection->ai_addr,sizeof(struct sockaddr));
+		if(connection == -1){
+			perror("Connection Error\n:");
+			freeaddrinfo(hints);
+			freeaddrinfo(baseConnection);
+			exit(EXIT_FAILURE);
+		}
         wordleWrite(sock);
         wordleRead(sock);
     }
