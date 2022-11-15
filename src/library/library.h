@@ -22,18 +22,18 @@ class SlangLib{
 public:
     SlangLib(char connectionType, int portNumber,string hostname);
 
-    ssize_t wordleRead(int sock);
+    void wordleRead(int sock);
 
-    ssize_t wordleWrite(int sock);
+    void wordleWrite(int sock);
 
     void connection();
 
     int errorChecking(int recvCheck,int connectCheck, int sockCheck);
 
 private:
-        char m_connectionType;
-        int m_portNumber;
-        string m_hostname;
+        char connectionType;
+        unsigned short portNumber;
+        string hostname;
 };
 
 
