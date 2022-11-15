@@ -20,21 +20,24 @@
 #include <netdb.h>
 #include "library.h"
 
-SlangLib::SlangLib(char connectionType, int portNumber,string hostname){
+SlangLib::SlangLib(char connectionType, int portNumber, string hostname) {
+
+
     switch(connectionType){
         case 's':
         case 'S':
-            connectionType = 'S';
+            m_connectionType = 'S';
+            break;
         case 'c':
         case 'C':
-            connectionType = 'C';
+            m_connectionType = 'C';
+            break;
         default:
             cout << "Error: Invalid Connection Type" << endl;
             exit(EXIT_FAILURE);
     }
-    portNumber = portNumber;
-    hostname = "";
-    connection();
+    m_portNumber = portNumber;
+    m_hostname = hostname;
 }
 
 
@@ -71,7 +74,7 @@ void SlangLib :: connection(){
     baseConnection->ai_protocol = 0;
     baseConnection->ai_socktype = SOCK_STREAM;
 
-    int getConnectionInfo = getaddrinfo(hostname, NULL, hints, &baseConnection);
+    int getConnectionInfo = getaddrinfo(m_hostname, NULL, hints, &baseConnection);
     if(getConnectionInfo == -1){
         printf("Error in Calling getaddrinfo: %s\n", gai_strerror(err));
         freeaddrinfo(hints);
@@ -79,16 +82,16 @@ void SlangLib :: connection(){
         exit(EXIT_FAILURE);
     }
 
-    ((struct sockaddr_in *)baseConnection->ai_addr)->sin_port = htons(portNumber);
-    int connection = connect(sock, (struct sockaddr *)baseConnection->ai_addr,sizeof(struct sockaddr));
+    ((struct sockaddr_in *)baseConnection->ai_addr)->sin_port = htons(m_portNumber);
+    int connection = connect(sock, (struct sockaddr *)baseConnection->ai_addr,sizeof(sock_addr));
     if(connection == -1){
         perror("Connection Error\n:");
         freeaddrinfo(hints);
         freeaddrinfo(baseConnection);
         exit(EXIT_FAILURE);
     }
-    if(connectionType == 'S'){
-        int binding = bind(sock, (struct sockaddr *)&baseConnection, sizeof(struct sockaddr));
+    if(m_connectionType == 'S'){
+        int binding = bind(sock, (struct sock_addr *)&baseConnection, sizeof(sock_addr));
         if(binding == -1){
             perror("Error in Bind Call:\n");
             freeaddrinfo(hints);
@@ -103,7 +106,7 @@ void SlangLib :: connection(){
             exit(EXIT_FAILURE);
         }
         while(true){
-            int accepting = accept(sock,(struct sockaddr *)&baseConnection, sizeof(struct sockaddr));
+            int accepting = accept(sock,(struct sockaddr *)&baseConnection, sizeof(struct_addr));
             if(accepting == -1){
                 perror("Error in Accepting Connections:\n");
                 freeaddrinfo(hints);

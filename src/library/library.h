@@ -31,9 +31,9 @@ public:
     int errorChecking(int recvCheck,int connectCheck, int sockCheck);
 
 private:
-        char connectionType;
-        int portNumber;
-        string hostname;
+        char m_connectionType;
+        int m_portNumber;
+        string m_hostname;
 };
 
 
