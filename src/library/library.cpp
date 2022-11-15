@@ -39,8 +39,8 @@ SlangLib::SlangLib(char connectionType, int portNumber,string hostname){
 
 
 ssize_t SlangLib :: wordleRead(int sock){
-    char **receiveHello;
-    int receiving = recv(sock,**receiveHello, strlen(receiveHello),0);
+    char *receiveHello;
+    int receiving = recv(sock,receiveHello, strlen(receiveHello),0);
     if(receiving == -1){
         perror("Error receiving Message");
         exit(EXIT_FAILURE);
@@ -49,8 +49,8 @@ ssize_t SlangLib :: wordleRead(int sock){
 }
 
 ssize_t SlangLib :: wordleWrite(int sock){
-    char **sayHello = "HELLO";
-    int sending = send(sock,**sayHello,strlen(sayHello),0);
+    char *sayHello = "HELLO";
+    int sending = send(sock,sayHello,strlen(sayHello),0);
     if(sending == -1){
         perror("Error Sending Message");
         exit(EXIT_FAILURE);
