@@ -11,31 +11,21 @@
 #ifndef SLANGLIB_H
 #define SLANGLIB_H
 
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
+#include <string>
 
 using namespace std;
 
-class SlangLib{
-
+class SlangLib {
 public:
-    SlangLib(char connectionType, int portNumber,string hostname);
-
-    void wordleRead(int sock);
-
-    void wordleWrite(int sock);
-
-    void connection();
-
-    int errorChecking(int recvCheck,int connectCheck, int sockCheck);
-
+	SlangLib(char c);
+	string wordleRead(int sock);
+	void wordleWrite(int sock, string message);
+	void init(string h, int p);
+	int errorChecking(int recvCheck,int connectCheck, int sockCheck);
 private:
-        char connectionType;
-        unsigned short portNumber;
-        string hostname;
+	char connectionType;
+	string hostname;
+	unsigned short portNumber;
 };
-
-
 
 #endif

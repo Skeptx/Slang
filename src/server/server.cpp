@@ -3,8 +3,7 @@
 using namespace std;
 
 int main() {
-
-
-        SlangLib servConnect('s', 46257, "acad.kutztown.edu");
+        SlangLib servConnect('S');
+		servConnect.init("acad.kutztown.edu", 46257);
         return 0;
 }
