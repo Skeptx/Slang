@@ -142,12 +142,3 @@ int SlangLib :: errorChecking(int recvCheck,int connectCheck, int sockCheck){
     } // check when socket is created
     return 0;
 }
-        return -1;
-    } // check when call connect
-
-    if(sockCheck == -1){
-        perror("Error in Creating Socket\n");
-        return -1;
-    } // check when socket is created
-    return 0;
-}
