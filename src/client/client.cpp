@@ -2,6 +2,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <string.h>
 #include <unistd.h>
 #include <termios.h>
@@ -27,13 +28,13 @@ int main(int argc, char **argv) {
 	if (argc > 3) {
 		printf("\r\nUsage: %s <host_name> [port_number]\r\n\r\n", argv[0]);
 		return EXIT_SUCCESS;
-	} else if (argv > 1) {
-		hostname = argv[1];
-		if (argv > 2) {
-			port = atoi(argv[2]);
+	} else if (argc > 1) {
+		host_name = argv[1];
+		if (argc > 2) {
+			port_number = atoi(argv[2]);
 		}
 	}
-	SlangLib slang('c', port_number, host_name);
+	//SlangLib slang('c', port_number, host_name);
 	status = 0;
 	history = (char *)malloc(sizeof(char) * 30);
 	results = (int *)malloc(sizeof(int) * 35);
