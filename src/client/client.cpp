@@ -2,137 +2,160 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string>
 #include <string.h>
 #include <unistd.h>
 #include <termios.h>
 //#include "../library/library.h"
 
-using namespace std;
-
 void print(int signum);
 void printLine(int word);
 
+int bold;
 int status;
-char *history;
-int *results;
-char *words;
 int word;
-#ifndef NO_CURSES_H
+char opts;
+char *history;
+char *results;
+char *words;
 WINDOW *window;
-#endif
 
 int main(int argc, char **argv) {
-	string host_name = "acad.kutztown.edu";
-	int port_number = 46257;
-	if (argc > 3) {
-		printf("\r\nUsage: %s <host_name> [port_number]\r\n\r\n", argv[0]);
-		return EXIT_SUCCESS;
-	} else if (argc > 1) {
-		host_name = argv[1];
-		if (argc > 2) {
-			port_number = atoi(argv[2]);
+	opts = argc == 1 ? 0 : -1;
+	char *host_name = NULL;
+	int port_number = 0;
+	for (int i = 1; i < argc; i++) {
+		if (!(strcmp(argv[i], "-c") * strcmp(argv[i], "--no-curses"))) {
+			opts -= 1;
+			continue;
+		} else if (!(strcmp(argv[i], "-i") * strcmp(argv[i], "--no-intro"))) {
+			opts -= 2;
+			continue;
+		} else if (strcmp(argv[i], "-h") * strcmp(argv[i], "--help")) {
+			if (!host_name) {
+				host_name = argv[i];
+				continue;
+			} else if (!port_number) {
+				int port_number = atoi(argv[i]);
+				if (port_number > 1024 && port_number < 65536) {
+					continue;
+				}
+			}
+			opts = i;
+			break;
 		}
+		opts = 0;
+		break;
 	}
-	//SlangLib slang('c', port_number, host_name);
+	if (opts > -1 || !host_name) {
+		printf("\r\nUsage: %s <host_name> [port_number] [optional_arguments]\r\nOptional arguments:\r\n-h | --help      : Show this help menu\r\n-c | --no-curses : Disables curses.h functionality for defective clients\r\n-i | --no-intro  : Disables the animated introduction\r\n\r\n", argv[0]);
+		if (opts > 0) {
+			printf("Invalid argument: %s\r\n\r\n", argv[opts]);
+		}
+		return EXIT_SUCCESS;
+	}
+	if (!port_number) {
+		port_number = 46257;
+	}
+	// SlangLib slang('C');
+	// slang.init(host_name, port_number);
+	// exit(EXIT_SUCCESS); // TEMPORARY
+	bold = 3;
 	status = 0;
+	word = 0;
 	history = (char *)malloc(sizeof(char) * 30);
-	results = (int *)malloc(sizeof(int) * 35);
+	results = (char *)malloc(sizeof(char) * 35);
 	words = (char *)malloc(sizeof(char) * 40);
+	static struct termios t0, t1;
+	if (opts % 2) {
+		window = initscr();
+		cbreak();
+		noecho();
+		keypad(stdscr, true);
+		signal(SIGWINCH, print);
+		print(0);
+	} else {
+		if (tcgetattr(STDIN_FILENO, &t0)) {
+			perror("\r\nError: tcgetattr failed");
+			return EXIT_FAILURE;
+		}
+		t1 = t0;
+		t1.c_lflag &= ~(ICANON + ECHO);
+		if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &t1)) {
+			perror("\r\nError: tcsetattr failed");
+			return EXIT_FAILURE;
+		}
+		fputs("\e[2J", stdout);
+		fflush(stdout);
+	}
 	memset(history, 32, 30);
 	memset(results, 0, 35);
-	memset(words, 32, 40);
+	memset(words, 0, 35);
 	words[30] = 'S';
 	words[31] = 'L';
 	words[32] = 'A';
 	words[33] = 'N';
 	words[34] = 'G';
-	#ifdef NO_CURSES_H
-	static struct termios t0, t1;
-	if (tcgetattr(STDIN_FILENO, &t0)) {
-		perror("\r\nError: tcgetattr failed");
-		return EXIT_FAILURE;
-	}
-	t1 = t0;
-	t1.c_lflag &= ~(ICANON + ECHO);
-	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &t1)) {
-		perror("\r\nError: tcsetattr failed");
-		return EXIT_FAILURE;
-	}
-	fflush(stdout);
-	#else
-	window = initscr();
-	cbreak();
-	noecho();
-	keypad(stdscr, true);
-	signal(SIGWINCH, print);
-	print(0);
-	#endif
+	/*char intro[31] = "WRITEWORDSFIXEDCOUNTCHARSSLANG";
+	for (int i = 0; i < 6; i++) {
+		word = i;
+		for (int j = 0; j < 5; j++) {
+			words[i * 5 + j] = intro[i * 5 + j];
+			print(j);
+			sleep(.05);
+		}
+	}*/
+	memset(results, 0, 35);
+	memset(words, 32, 30);
+	fflush(stdin);
+	// results[1] = 1; // TEMP
+	// results[2] = 2; // TEMP
 	int input = 0;
 	for (bool start = true; start; start = input != 27) {
 		for (word = 0; word < 6; word++) {
 			int length = 0;
 			print(length);
-			#ifdef NO_CURSES_H
-			input = getc(stdin);
-			#else
-			input = wgetch(window);
-			#endif
+			input = opts % 2 ? wgetch(window) : getc(stdin);
 			while (input != 10 && input != 13 && input != 27) {
-				#ifdef NO_CURSES_H
-				if (length < 5) {
-				#else
-				if ((input == KEY_BACKSPACE || input == KEY_LEFT) && length > 0) {
+				if (opts % 2 && (input == KEY_BACKSPACE || input == KEY_LEFT) && length > 0) {
 					words[word * 5 + --length] = ' ';
 				} else if (length < 5) {
-				#endif
 					int v = word * 5 + length;
-					#ifndef NO_CURSES_H
-					if (input == KEY_RIGHT && history[v] != 32) {
+					if (opts % 2 && input == KEY_RIGHT && history[v] != 32) {
 						length++;
 						words[v] = history[v];
 					} else {
-					#endif
 						if (input > 96 && input < 123) {
 							input -= 32;
 						}
 						if (input > 64 && input < 91) {
 							length++;
-							history[v] = input;
 							words[v] = input;
-							if (v < 30) {
+							if (history[v] != input && v < 30) {
 								memset(history + v + 1, 32, 30 - v);
 							}
+							history[v] = input;
 						}
-					#ifndef NO_CURSES_H
 					}
-					#endif
 				}
 				print(length);
-				#ifdef NO_CURSES_H
-				input = getc(stdin);
-				#else
-				input = wgetch(window);
-				#endif
+				input = opts % 2 ? wgetch(window) : getc(stdin);
 			}
 			if (input == 27) {
 				break;
 			}
 		}
 	}
-	#ifdef NO_CURSES_H
-	if (tcsetattr(STDIN_FILENO, TCSANOW, &t0)) {
+	if (opts % 2) {
+		signal(SIGWINCH, SIG_DFL);
+		echo();
+		if (endwin() == ERR) {
+			system("reset");
+		}
+	} else if (tcsetattr(STDIN_FILENO, TCSANOW, &t0)) {
 		perror("\r\nError: tcsetattr failed");
 		return EXIT_FAILURE;
 	}
-	#else
-	signal(SIGWINCH, SIG_DFL);
-	echo();
-	if (endwin() == ERR) {
-		system("reset");
-	}
-	#endif
-	print(5);
+	print(6);
 	fputs("THANK YOU FOR PLAYING SLANG\r\n\r\n", stdout);
 	free(history);
 	free(results);
@@ -141,7 +164,10 @@ int main(int argc, char **argv) {
 }
 
 void print(int length) {
-	fputs("\033[2J\033[1;1H  _____ _____ _____ _____ _____", stdout);
+	if (opts % 2) {
+		fputs("\e[2J", stdout);
+	}
+	fputs("\e[1;1H  _____ _____ _____ _____ _____", stdout);
 	printLine(30);
 	fputs("\r\n\r\n   SLANG, A WORDLE ALTERNATIVE\r\n  _____ _____ _____ _____ _____", stdout);
 	for (int word = 0; word < 30; word += 5) {
@@ -154,41 +180,43 @@ void print(int length) {
 		} else if (status == 2) {
 			fputs("\r\n\r\n   YOUR WORD IS NOT RECOGNIZED", stdout);
 		}
-	} else if (status < 7) {
+	} else {
 		if (status > 4) {
 			printf("\r\n\r\n   OH NO, THE WORD WAS \"%c%c%c%c%c\"", words[35], words[36], words[37], words[38], words[39]);
-		} else if (status > 2) {
+		} else {
 			fputs("\r\n\r\n   CONGRATULATIONS, YOU GOT IT", stdout);
 		}
-		fputs("\r\n\r\n   DO YOU WANT TO START AGAIN?\r\n\r\n   TYPE \"YES\" TO RESTART SLANG\r\n   TYPE \"NO\" IF YOU'RE CHICKEN", stdout);
+		fputs("\r\n\r\n   DO YOU WANT TO START AGAIN?\r\n\r\n   TYPE \"Y\" TO PLAY A NEW GAME\r\n   TYPE \"N\" TO END THE PROGRAM", stdout);
 		if (status % 2) {
-			fputs("\r\n\r\n   PLEASE RESPOND \"YES\" / \"NO\"", stdout);
+			fputs("\r\n\r\n                              \e[32;31H", stdout); // CHECK IF THIS IS CORRECT
+		} else {
+			fputs("\r\n\r\n   PLEASE ONLY TYPE \"Y\" OR \"N\"", stdout);
 		}
 	}
-	if (length == 5) {
-		fputs("\r\n\r\n   ", stdout);
+	if (length == 6) {
+		fputs("\r\n\r\n   \e[?25h", stdout);
+	} else if (length == 5 || bold < 35) {
+		fputs("\e[?25l", stdout);
 	} else {
-		printf("\033[%i;%iH", word * 3 + 9, length * 6 + 5);
+		printf("\e[%d;%dH\e[?25h", word * 3 + 9, length * 6 + 5);
 	}
 	fflush(stdout);
-	#ifndef NO_CURSES_H
-	if (!isendwin()) {
+	if (opts % 2 && !isendwin()) {
 		wrefresh(window);
 	}
-	#endif
 }
 
 void printLine(int offset) {
 	fputs("\r\n |", stdout);
 	for (int letter = offset; letter < offset + 5; letter++) {
-		printf(" %c%c%c |", results[letter] == 2 ? '\\' : ' ', results[letter] == 1 ? '^' : ' ', results[letter] == 2 ? '/' : ' ');
+		printf(" \e[%dm%c%c%c\e[m |", results[letter] == 2 ? 32 : 33, results[letter] == 2 ? '\\' : ' ', results[letter] == 1 ? '^' : ' ', results[letter] == 2 ? '/' : ' ');
 	}
 	printf("\r\n |");
 	for (int letter = offset; letter < offset + 5; letter++) {
-		printf("%c%c%c%c%c|", results[letter] == 1 ? '<' : results[letter] == 1 ? '-' : ' ', results[letter] == 1 ? '-' : ' ', words[letter], results[letter] == 1 ? '-' : ' ', results[letter] == 1 ? '>' : results[letter] == 1 ? '-' : ' ');
+		printf(letter == bold ? "\e[%dm%c \e[1m%c\e[m %c\e[m|" : "\e[%dm%c %c %c\e[m|", results[letter] == 2 ? 32 : results[letter] == 1 ? 33 : 0, results[letter] == 2 ? '-' : results[letter] == 1 ? '<' : ' ', words[letter], results[letter] == 2 ? '-' : results[letter] == 1 ? '>' : ' ');
 	}
 	printf("\r\n |");
 	for (int letter = offset; letter < offset + 5; letter++) {
-		printf("_%c%c%c_|", results[letter] == 2 ? '/' : '_', results[letter] == 1 ? 'v' : '_', results[letter] == 2 ? '\\' : '_');
+		printf("_%s%s%s_|", results[letter] == 2 ? "\e[32m/\e[m" : "_", results[letter] == 1 ? "\e[33mv\e[m" : "_", results[letter] == 2 ? "\e[32m\\\e[m" : "_");
 	}
 }
