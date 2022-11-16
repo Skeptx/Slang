@@ -107,9 +107,9 @@ void SlangLib::init(string hostname, int portNumber){
 		string word = wordleRead(sock);
 		cout << "CLIENT RECV: " << word << endl;
 		sleep(1);
-		cout << "CLIENT SEND: 4(QUIT)\n";
+		cout << "CLIENT SEND: 5(READY)\n";
 		sleep(1);
-		wordleWrite(sock, "4(QUIT)");
+		wordleWrite(sock, "5(READY)");
 		close(sock);
 		freeaddrinfo(hints);
 		freeaddrinfo(baseConnection);
