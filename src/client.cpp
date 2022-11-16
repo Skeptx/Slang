@@ -14,6 +14,7 @@ void printLine(int word);
 int bold;
 int status;
 int word;
+int letter;
 char opts;
 char *history;
 char *results;
@@ -59,20 +60,21 @@ int main(int argc, char **argv) {
 	}
 	SlangLib slang('C', messageHandler);
 	slang.init(host_name, port_number);
-	//exit(EXIT_SUCCESS); // TEMPORARY
+	// exit(EXIT_SUCCESS); // TEMPORARY
 	bold = 35;
 	status = 0;
 	word = 0;
 	history = (char *)malloc(sizeof(char) * 30);
 	results = (char *)malloc(sizeof(char) * 35);
 	words = (char *)malloc(sizeof(char) * 40);
+	signal(SIGINT, print);
+	signal(SIGWINCH, print);
 	static struct termios t0, t1;
 	if (opts % 2) {
 		window = initscr();
 		cbreak();
 		noecho();
 		keypad(stdscr, true);
-		signal(SIGWINCH, print);
 		print(0);
 	} else {
 		if (tcgetattr(STDIN_FILENO, &t0)) {
@@ -96,7 +98,7 @@ int main(int argc, char **argv) {
 	words[32] = 'A';
 	words[33] = 'N';
 	words[34] = 'G';
-	char intro[31] = "WRITEWORDSFIXEDCOUNTCHARSSLANG";
+	/*char intro[31] = "WRITEWORDSFIXEDCOUNTCHARSSLANG";
 	for (int i = 0; i < 6; i++) {
 		word = i;
 		for (int j = 0; j < 5; j++) {
@@ -104,7 +106,7 @@ int main(int argc, char **argv) {
 			print(j);
 			sleep(.05);
 		}
-	}
+	}*/
 	memset(results, 0, 35);
 	memset(words, 32, 30);
 	fflush(stdin);
@@ -113,23 +115,23 @@ int main(int argc, char **argv) {
 	int input = 0;
 	for (bool start = true; start; start = input != 27) {
 		for (word = 0; word < 6; word++) {
-			int length = 0;
-			print(length);
+			letter = 0;
+			print(-1);
 			input = opts % 2 ? wgetch(window) : getc(stdin);
 			while (input != 10 && input != 13 && input != 27) {
-				if (opts % 2 && (input == KEY_BACKSPACE || input == KEY_LEFT) && length > 0) {
-					words[word * 5 + --length] = ' ';
-				} else if (length < 5) {
-					int v = word * 5 + length;
+				if (opts % 2 && (input == KEY_BACKSPACE || input == KEY_LEFT) && letter < 0) {
+					words[word * 5 - ++letter] = ' ';
+				} else if (letter > -5) {
+					int v = word * 5 - letter;
 					if (opts % 2 && input == KEY_RIGHT && history[v] != 32) {
-						length++;
+						letter--;
 						words[v] = history[v];
 					} else {
 						if (input > 96 && input < 123) {
 							input -= 32;
 						}
 						if (input > 64 && input < 91) {
-							length++;
+							letter--;
 							words[v] = input;
 							if (history[v] != input && v < 30) {
 								memset(history + v + 1, 32, 30 - v);
@@ -138,7 +140,7 @@ int main(int argc, char **argv) {
 						}
 					}
 				}
-				print(length);
+				print(-1);
 				input = opts % 2 ? wgetch(window) : getc(stdin);
 			}
 			if (input == 27) {
@@ -146,8 +148,9 @@ int main(int argc, char **argv) {
 			}
 		}
 	}
+	signal(SIGINT, SIG_DFL);
+	signal(SIGWINCH, SIG_DFL);
 	if (opts % 2) {
-		signal(SIGWINCH, SIG_DFL);
 		echo();
 		if (endwin() == ERR) {
 			system("reset");
@@ -156,7 +159,8 @@ int main(int argc, char **argv) {
 		perror("\r\nError: tcsetattr failed");
 		return EXIT_FAILURE;
 	}
-	print(6);
+	letter = -6;
+	print(-1);
 	fputs("THANK YOU FOR PLAYING SLANG\r\n\r\n", stdout);
 	free(history);
 	free(results);
@@ -183,8 +187,8 @@ void messageHandler(char *message) {
 	
 }
 
-void print(int length) {
-	if (opts % 2) {
+void print(int sig) {
+	if (opts % 2 || sig == SIGINT) {
 		fputs("\e[2J", stdout);
 	}
 	fputs("\e[1;1H  _____ _____ _____ _____ _____", stdout);
@@ -213,12 +217,12 @@ void print(int length) {
 			fputs("\r\n\r\n   PLEASE ONLY TYPE \"Y\" OR \"N\"", stdout);
 		}
 	}
-	if (length == 6) {
+	if (letter == -6) {
 		fputs("\r\n\r\n   \e[?25h", stdout);
-	} else if (length == 5 || bold < 35) {
+	} else if (letter == -5) {
 		fputs("\e[?25l", stdout);
 	} else {
-		printf("\e[%d;%dH\e[?25h", word * 3 + 9, length * 6 + 5);
+		printf("\e[%d;%dH\e[?25h", word * 3 + 9, letter * -6 + 5);
 	}
 	fflush(stdout);
 	if (opts % 2 && !isendwin()) {
