@@ -57,9 +57,9 @@ int main(int argc, char **argv) {
 	if (!port_number) {
 		port_number = 46257;
 	}
-	// SlangLib slang('C', messageHandler);
-	// slang.init(host_name, port_number);
-	// exit(EXIT_SUCCESS); // TEMPORARY
+	SlangLib slang('C', messageHandler);
+	slang.init(host_name, port_number);
+	//exit(EXIT_SUCCESS); // TEMPORARY
 	bold = 35;
 	status = 0;
 	word = 0;
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
 	words[32] = 'A';
 	words[33] = 'N';
 	words[34] = 'G';
-	/*char intro[31] = "WRITEWORDSFIXEDCOUNTCHARSSLANG";
+	char intro[31] = "WRITEWORDSFIXEDCOUNTCHARSSLANG";
 	for (int i = 0; i < 6; i++) {
 		word = i;
 		for (int j = 0; j < 5; j++) {
@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
 			print(j);
 			sleep(.05);
 		}
-	}*/
+	}
 	memset(results, 0, 35);
 	memset(words, 32, 30);
 	fflush(stdin);
