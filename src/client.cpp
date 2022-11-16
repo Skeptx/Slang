@@ -5,8 +5,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <termios.h>
-//#include "../library/library.h"
+#include "libslang.h"
 
+void messageHandler(char *message);
 void print(int signum);
 void printLine(int word);
 
@@ -47,7 +48,7 @@ int main(int argc, char **argv) {
 		break;
 	}
 	if (opts > -1 || !host_name) {
-		printf("\r\nUsage: %s <host_name> [port_number] [optional_arguments]\r\nOptional arguments:\r\n-h | --help      : Show this help menu\r\n-c | --no-curses : Disables curses.h functionality for defective clients\r\n-i | --no-intro  : Disables the animated introduction\r\n\r\n", argv[0]);
+		printf("\r\nUsage: %s <host_name> [port_number] [optional_arguments]\r\n\r\nOptional arguments:\r\n-h | --help      : Show this help menu\r\n-c | --no-curses : Disables curses.h functionality for defective clients\r\n-i | --no-intro  : Disables the animated introduction\r\n\r\n", argv[0]);
 		if (opts > 0) {
 			printf("Invalid argument: %s\r\n\r\n", argv[opts]);
 		}
@@ -56,10 +57,10 @@ int main(int argc, char **argv) {
 	if (!port_number) {
 		port_number = 46257;
 	}
-	// SlangLib slang('C');
+	// SlangLib slang('C', messageHandler);
 	// slang.init(host_name, port_number);
 	// exit(EXIT_SUCCESS); // TEMPORARY
-	bold = 3;
+	bold = 35;
 	status = 0;
 	word = 0;
 	history = (char *)malloc(sizeof(char) * 30);
@@ -161,6 +162,25 @@ int main(int argc, char **argv) {
 	free(results);
 	free(words);
 	return 0;
+}
+
+void messageHandler(char *message) {
+	int len = strlen(message);
+	if (len > 6 && message[1] == '(' && message[len - 1] == ')' && len == message[0] == '4' ? 7 : 8) {
+		switch(message[0]) {
+		case 'G':
+			break;
+		case 'R':
+			break;
+		case 'A':
+			break;
+		default:
+			if (message[0] > 48 && message[0] < 58 && message[0] == len + 45) {
+				
+			}
+		}
+	}
+	
 }
 
 void print(int length) {

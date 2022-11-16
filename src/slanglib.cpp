@@ -19,24 +19,17 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <netdb.h>
-#include "library.h"
+#include "libslang.h"
 
-SlangLib::SlangLib(char connectionType) :
-        connectionType(toupper(connectionType)){
-
-
+SlangLib::SlangLib(char connectionType, void(* messageHandler)(char *)) : connectionType(toupper(connectionType)), messageHandler(messageHandler) {
     if(connectionType != 'C' && connectionType != 'S') {
-
-
         cout << "ERROR: Invalid connection type!" << endl;
         exit(EXIT_FAILURE);
-    }
+	}
 }
 
 string SlangLib::wordleRead(int sock){
-
-
-        char *recvChar = (char *)malloc(10);
+    char *recvChar = (char *)malloc(10);
 	read(sock, recvChar, 9);
 	string recv(recvChar);
 	free(recvChar);
@@ -44,12 +37,8 @@ string SlangLib::wordleRead(int sock){
 }
 
 void SlangLib::wordleWrite(int sock, string message){
-
-
     int sending = write(sock, message.c_str(), message.length());
     if(sending == -1){
-
-
         perror("Error Sending Message");
     }
 }

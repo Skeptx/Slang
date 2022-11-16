@@ -1,13 +1,13 @@
-slang: library server client
+slang: int/libslang.a server client
 
-../int/library.a: library/*.cpp library/*.h
-	g++ library/library.cpp -c -o ../int/library.o $(flags)
-	ar rcs ../int/library.a ../int/library.o
+int/libslang.a: libslang.cpp libslang.h
+	g++ libslang.cpp -c -o int/libslang.o $(flags)
+	ar rcs int/libslang.a int/libslang.o
 
-server: ../int/library.a server/server.cpp
-	g++ server/server.cpp -c -o ../int/server.o $(flags)
-	g++ ../int/server.o ../int/library.o -o ../dev/server $(flags)
+server: int/libslang.a server.cpp
+	g++ server.cpp -c -o int/server.o $(flags)
+	g++ int/server.o -L int -l slang -o server $(flags)
 
-client: ../int/library.a client/client.cpp
-	g++ client/client.cpp -c -o ../int/client.o -lcurses $(flags)
-	g++ ../int/client.o ../int/library.o -o ../dev/client -lcurses $(flags)
+client: int/libslang.a client.cpp
+	g++ client.cpp -c -o int/client.o -lcurses $(flags)
+	g++ int/client.o -L int -l slang -o client -lcurses $(flags)

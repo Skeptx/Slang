@@ -17,7 +17,7 @@ using namespace std;
 
 class SlangLib {
 public:
-	SlangLib(char connectionType);
+	SlangLib(char connectionType, void(* messageHandler)(char *));
 	string wordleRead(int sock);
 	void wordleWrite(int sock, string message);
 	void init(string hostname, int portNumber);
@@ -26,6 +26,7 @@ private:
 	char connectionType;
 	string hostname;
 	unsigned short portNumber;
+	void(* messageHandler)(char *);
 };
 
 #endif
