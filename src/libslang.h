@@ -17,10 +17,11 @@ using namespace std;
 
 class SlangLib {
 public:
-	SlangLib(char connectionType, void(* messageHandler)(char *));
+	SlangLib(char connectionType, void(* readHandler)(char *));
 	string wordleRead(int sock);
 	void wordleWrite(int sock, string message);
-	void init(string hostname, int portNumber);
+	void init(int portNumber, string hostname);
+	void init(int portNumber);
 	int errorChecking(int recvCheck,int connectCheck, int sockCheck);
 private:
 	char connectionType;

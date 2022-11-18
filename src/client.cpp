@@ -5,11 +5,13 @@
 #include <string.h>
 #include <unistd.h>
 #include <termios.h>
+
 #include "libslang.h"
 
-void messageHandler(char *message);
-void print(int signum);
-void printLine(int word);
+void clean(int signo);
+void print(int signo);
+void printLine(int offset);
+void readHandler(char *message);
 
 int bold;
 int status;
@@ -19,6 +21,7 @@ char opts;
 char *history;
 char *results;
 char *words;
+static struct termios t0;
 WINDOW *window;
 
 int main(int argc, char **argv) {
@@ -38,7 +41,7 @@ int main(int argc, char **argv) {
 				continue;
 			} else if (!port_number) {
 				int port_number = atoi(argv[i]);
-				if (port_number > 1024 && port_number < 65536) {
+				if (port_number > 1023 && port_number < 65536) {
 					continue;
 				}
 			}
@@ -49,7 +52,7 @@ int main(int argc, char **argv) {
 		break;
 	}
 	if (opts > -1 || !host_name) {
-		printf("\r\nUsage: %s <host_name> [port_number] [optional_arguments]\r\n\r\nOptional arguments:\r\n-h | --help      : Show this help menu\r\n-c | --no-curses : Disables curses.h functionality for defective clients\r\n-i | --no-intro  : Disables the animated introduction\r\n\r\n", argv[0]);
+		printf("\r\nUsage: %s <host> [port] [optional_arguments]\r\nNotes: The host must be a fully qualified domain name.\r\n       The port must be between 1024 and 65535 (inclusive).\r\n       It is recommended to use a port between 1024 and 49151 (inclusive).\r\n\r\nOptional arguments:\r\n-h | --help      : Show this help menu\r\n-c | --no-curses : Disables curses.h functionality for defective clients\r\n-i | --no-intro  : Disables the animated introduction\r\n\r\n", argv[0]);
 		if (opts > 0) {
 			printf("Invalid argument: %s\r\n\r\n", argv[opts]);
 		}
@@ -58,18 +61,21 @@ int main(int argc, char **argv) {
 	if (!port_number) {
 		port_number = 46257;
 	}
-	SlangLib slang('C', messageHandler);
-	slang.init(host_name, port_number);
+	// SlangLib slang('C', readHandler);
+	// slang.init(port_number, host_name);
 	// exit(EXIT_SUCCESS); // TEMPORARY
 	bold = 35;
 	status = 0;
 	word = 0;
-	history = (char *)malloc(sizeof(char) * 30);
-	results = (char *)malloc(sizeof(char) * 35);
-	words = (char *)malloc(sizeof(char) * 40);
+	history = (char *)calloc(30, sizeof(char));
+	results = (char *)calloc(35, sizeof(char));
+	words = (char *)calloc(40, sizeof(char));
+	signal(SIGKILL, clean);
+	signal(SIGQUIT, clean);
+	signal(SIGTSTP, clean);
 	signal(SIGINT, print);
 	signal(SIGWINCH, print);
-	static struct termios t0, t1;
+	static struct termios t1;
 	if (opts % 2) {
 		window = initscr();
 		cbreak();
@@ -90,9 +96,6 @@ int main(int argc, char **argv) {
 		fputs("\e[2J", stdout);
 		fflush(stdout);
 	}
-	memset(history, 32, 30);
-	memset(results, 0, 35);
-	memset(words, 0, 35);
 	words[30] = 'S';
 	words[31] = 'L';
 	words[32] = 'A';
@@ -107,7 +110,7 @@ int main(int argc, char **argv) {
 			sleep(.05);
 		}
 	}*/
-	memset(results, 0, 35);
+	memset(results, 0, 30);
 	memset(words, 32, 30);
 	fflush(stdin);
 	// results[1] = 1; // TEMP
@@ -148,6 +151,14 @@ int main(int argc, char **argv) {
 			}
 		}
 	}
+	clean(-1);
+	return EXIT_SUCCESS;
+}
+
+void clean(int signo) {
+	signal(SIGKILL, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+	signal(SIGTSTP, SIG_DFL);
 	signal(SIGINT, SIG_DFL);
 	signal(SIGWINCH, SIG_DFL);
 	if (opts % 2) {
@@ -157,38 +168,25 @@ int main(int argc, char **argv) {
 		}
 	} else if (tcsetattr(STDIN_FILENO, TCSANOW, &t0)) {
 		perror("\r\nError: tcsetattr failed");
-		return EXIT_FAILURE;
 	}
 	letter = -6;
-	print(-1);
-	fputs("THANK YOU FOR PLAYING SLANG\r\n\r\n", stdout);
+	if (signo == -1) {
+		print(-1);
+		fputs("THANK YOU FOR PLAYING SLANG\r\n\r\n", stdout);
+	} else if (opts % 2) {
+		print(signo);
+		fputs("THANK YOU FOR PLAYING SLANG\r\n\r\n", stdout);
+	} else {
+		system("clear");
+	}
 	free(history);
 	free(results);
 	free(words);
-	return 0;
+	exit(signo == -1 ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 
-void messageHandler(char *message) {
-	int len = strlen(message);
-	if (len > 6 && message[1] == '(' && message[len - 1] == ')' && len == message[0] == '4' ? 7 : 8) {
-		switch(message[0]) {
-		case 'G':
-			break;
-		case 'R':
-			break;
-		case 'A':
-			break;
-		default:
-			if (message[0] > 48 && message[0] < 58 && message[0] == len + 45) {
-				
-			}
-		}
-	}
-	
-}
-
-void print(int sig) {
-	if (opts % 2 || sig == SIGINT) {
+void print(int signo) {
+	if (opts % 2 || signo != SIGWINCH) {
 		fputs("\e[2J", stdout);
 	}
 	fputs("\e[1;1H  _____ _____ _____ _____ _____", stdout);
@@ -243,4 +241,23 @@ void printLine(int offset) {
 	for (int letter = offset; letter < offset + 5; letter++) {
 		printf("_%s%s%s_|", results[letter] == 2 ? "\e[32m/\e[m" : "_", results[letter] == 1 ? "\e[33mv\e[m" : "_", results[letter] == 2 ? "\e[32m\\\e[m" : "_");
 	}
+}
+
+void readHandler(char *message) {
+	int len = strlen(message);
+	if (len > 6 && message[1] == '(' && message[len - 1] == ')' && len == message[0] == '4' ? 7 : 8) {
+		switch(message[0]) {
+		case 'G':
+			break;
+		case 'R':
+			break;
+		case 'A':
+			break;
+		default:
+			if (message[0] > 48 && message[0] < 58 && message[0] == len + 45) {
+				
+			}
+		}
+	}
+	
 }

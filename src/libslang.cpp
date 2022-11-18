@@ -21,7 +21,7 @@
 #include <netdb.h>
 #include "libslang.h"
 
-SlangLib::SlangLib(char connectionType, void(* messageHandler)(char *)) : connectionType(toupper(connectionType)), messageHandler(messageHandler) {
+SlangLib::SlangLib(char connectionType, void (* messageHandler)(char *)) : connectionType(toupper(connectionType)), messageHandler(messageHandler) {
     if(connectionType != 'C' && connectionType != 'S') {
         cout << "ERROR: Invalid connection type!" << endl;
         exit(EXIT_FAILURE);
@@ -43,7 +43,7 @@ void SlangLib::wordleWrite(int sock, string message){
     }
 }
 
-void SlangLib::init(string hostname, int portNumber){
+void SlangLib::init(int portNumber, string hostname){
 	this->hostname = hostname;
 	this->portNumber = portNumber;
     int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -51,70 +51,78 @@ void SlangLib::init(string hostname, int portNumber){
         perror("Socket Error\n");
         exit(EXIT_FAILURE);
     }
-    if(connectionType == 'S'){
-		struct sockaddr_in baseConnection, activeConnection;
-		memset(&baseConnection, 0, sizeof(struct sockaddr_in));
-		baseConnection.sin_family = AF_INET;
-		baseConnection.sin_addr.s_addr = htonl(INADDR_ANY);
-		baseConnection.sin_port = htons(portNumber);
-        int binding = bind(sock, (struct sockaddr *)&baseConnection, sizeof(struct sockaddr));
-        if(binding == -1){
-            perror("Error in Bind Call:\n");
-            exit(EXIT_FAILURE);
-        }
-        int listening = listen(sock, 5);
-        if(listening == -1){
-            perror("Error in Listen Call:\n");
-            exit(EXIT_FAILURE);
-        }
-		socklen_t infolen = sizeof(activeConnection);
-        while(true){
-            int accepting = accept(sock, (struct sockaddr *)&activeConnection, &infolen);
-            if(accepting < 0){
-                perror("Error in Accepting Connections:\n");
-                exit(EXIT_FAILURE);
-            }
-			cout << "SERVER SEND: 5(HELLO)\n";
-			sleep(1);
-			wordleWrite(accepting, "5(HELLO)");
-			string word = wordleRead(accepting);
-			cout << "SERVER RECV: " << word << endl;
-			close(accepting);
-        }
-    }
-    else{
-		struct addrinfo *baseConnection = (struct addrinfo *)malloc(sizeof(struct addrinfo));
-		struct addrinfo *hints = (struct addrinfo *)malloc(sizeof(struct addrinfo));
-		hints->ai_family = AF_INET;
-		hints->ai_flags = 0;
-		hints->ai_protocol = 0;
-		hints->ai_socktype = SOCK_STREAM;
-		int getConnectionInfo = getaddrinfo(hostname.c_str(), NULL, hints, &baseConnection);
-		if(getConnectionInfo){
-			printf("Error in Calling getaddrinfo: %s\n", gai_strerror(getConnectionInfo));
-			freeaddrinfo(hints);
-			freeaddrinfo(baseConnection);
-			exit(EXIT_FAILURE);
-		}
-		((struct sockaddr_in *)baseConnection->ai_addr)->sin_port = htons(portNumber);
-		int connection = connect(sock, (struct sockaddr *)baseConnection->ai_addr,sizeof(struct sockaddr));
-		if(connection == -1){
-			perror("Connection Error\n:");
-			freeaddrinfo(hints);
-			freeaddrinfo(baseConnection);
-			exit(EXIT_FAILURE);
-		}
-		string word = wordleRead(sock);
-		cout << "CLIENT RECV: " << word << endl;
-		sleep(1);
-		cout << "CLIENT SEND: 5(READY)\n";
-		sleep(1);
-		wordleWrite(sock, "5(READY)");
-		close(sock);
+	struct addrinfo *baseConnection = (struct addrinfo *)malloc(sizeof(struct addrinfo));
+	struct addrinfo *hints = (struct addrinfo *)malloc(sizeof(struct addrinfo));
+	hints->ai_family = AF_INET;
+	hints->ai_flags = 0;
+	hints->ai_protocol = 0;
+	hints->ai_socktype = SOCK_STREAM;
+	int getConnectionInfo = getaddrinfo(hostname.c_str(), NULL, hints, &baseConnection);
+	if(getConnectionInfo){
+		printf("Error in Calling getaddrinfo: %s\n", gai_strerror(getConnectionInfo));
 		freeaddrinfo(hints);
 		freeaddrinfo(baseConnection);
-		sleep(1);
+		exit(EXIT_FAILURE);
+	}
+	((struct sockaddr_in *)baseConnection->ai_addr)->sin_port = htons(portNumber);
+	int connection = connect(sock, (struct sockaddr *)baseConnection->ai_addr,sizeof(struct sockaddr));
+	if(connection == -1){
+		perror("Connection Error\n:");
+		freeaddrinfo(hints);
+		freeaddrinfo(baseConnection);
+		exit(EXIT_FAILURE);
+	}
+	string word = wordleRead(sock);
+	cout << "CLIENT RECV: " << word << endl;
+	sleep(1);
+	cout << "CLIENT SEND: 4(QUIT)\n";
+	sleep(1);
+	wordleWrite(sock, "4(QUIT)");
+	close(sock);
+	freeaddrinfo(hints);
+	freeaddrinfo(baseConnection);
+	sleep(1);
+}
+
+void SlangLib::init(int portNumber) {
+	this->hostname = hostname;
+	this->portNumber = portNumber;
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if(sock == -1){
+        perror("Socket Error\n");
+        exit(EXIT_FAILURE);
     }
+	struct sockaddr_in baseConnection, activeConnection;
+	memset(&baseConnection, 0, sizeof(struct sockaddr_in));
+	baseConnection.sin_family = AF_INET;
+	baseConnection.sin_addr.s_addr = htonl(INADDR_ANY);
+	baseConnection.sin_port = htons(portNumber);
+	int binding = bind(sock, (struct sockaddr *)&baseConnection, sizeof(struct sockaddr));
+	if(binding == -1){
+		perror("Error in Bind Call:\n");
+		exit(EXIT_FAILURE);
+	}
+	int listening = listen(sock, 5);
+	if(listening == -1){
+		perror("Error in Listen Call:\n");
+		exit(EXIT_FAILURE);
+	}
+	socklen_t infolen = sizeof(activeConnection);
+	while (true) {
+		int newsockfd = accept(sock, (struct sockaddr *)&activeConnection, &infolen);
+		if (newsockfd < 0) {
+			perror("Error in Accepting Connections");
+			continue;
+		}
+		/*pthread_t tid;
+		int err = pthread_create(&tid, NULL, connectionHandler, &tid));
+		if (err) {
+			printf("Error: pthread_create failed: %s\n", strerror(err));
+		}*/
+		wordleWrite(newsockfd, "5(HELLO)");
+		string word = wordleRead(newsockfd);
+		close(newsockfd);
+	}
 }
 
 int SlangLib::errorChecking(int recvCheck,int connectCheck, int sockCheck){
