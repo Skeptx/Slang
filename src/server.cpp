@@ -35,7 +35,7 @@ int main() {
 	readIntoMap(stringHash);
 
 
-	string test;
+        string test;
         cout << "Map Search: " << flush;
         cin >> test;
         if(stringHash.find(test) == stringHash.end()) {
@@ -51,7 +51,7 @@ int main() {
 
 
 	SlangLib slang('S', 46257, "acad.kutztown.edu");
-    slang.init();
+        slang.init();
 
 
 	return 0;
