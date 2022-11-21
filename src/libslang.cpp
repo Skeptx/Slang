@@ -42,7 +42,7 @@ string SlangLib::wordleRead(int sock){
 	return recv;
 }
 
-void SlangLib::wordleWrite(int sock,sed 's/\([A-Z]\)/\L\1/g' temp string message){
+void SlangLib::wordleWrite(int sock, string message){
     int sending = write(sock, message.c_str(), message.length());
     if(sending == -1){
         perror("Error Sending Message");
