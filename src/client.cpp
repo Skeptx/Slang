@@ -61,9 +61,9 @@ int main(int argc, char **argv) {
 	if (!port_number) {
 		port_number = 46257;
 	}
-	// SlangLib slang('C', readHandler);
-	// slang.init(port_number, host_name);
-	// exit(EXIT_SUCCESS); // TEMPORARY
+	SlangLib slang('C', 46257, "acad.kutztown.edu");
+	slang.init();
+	exit(EXIT_SUCCESS); // TEMPORARY
 	bold = 35;
 	status = 0;
 	word = 0;
@@ -255,9 +255,9 @@ void readHandler(char *message) {
 			break;
 		default:
 			if (message[0] > 48 && message[0] < 58 && message[0] == len + 45) {
-				
+
 			}
 		}
 	}
-	
+
 }

@@ -48,6 +48,7 @@ int main() {
 
 
 	SlangLib slang('S', 46257, "acad.kutztown.edu");
+        slang.init();
 
 
 	return 0;
