@@ -43,7 +43,7 @@ string SlangLib::wordleRead(int sock){
 }
 
 void SlangLib::wordleWrite(int sock, string message){
-    int sending = send(sock, message.c_str(), message.length(), 0);
+    int sending = write(sock, message.c_str(), message.length());
     if(sending == -1){
         perror("Error Sending Message");
     }
@@ -70,7 +70,6 @@ void SlangLib::init() {
 
                 cout << "ERROR: Invalid connection type!" << endl;
                 exit(EXIT_FAILURE);
-                break;
         }
 }
 void SlangLib::cliConnect(){
