@@ -20,6 +20,9 @@ void readIntoMap(unordered_map<string, bool>& stringHash) {
 
                 stringHash[word] = 1;
         }
+        inFile.close();
+
+
 }
 
 void messageHandler(char *message) {
