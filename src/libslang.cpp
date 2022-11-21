@@ -148,9 +148,9 @@ void SlangLib::servConnect() {
 		if (err) {
 			printf("Error: pthread_create failed: %s\n", strerror(err));
 		}*/
-		wordleWrite(newsockfd, "5(HELLO)");
-		string word = wordleRead(newsockfd);
+		wordleWrite(sock, "5(HELLO)");
+		string word = wordleRead(sock);
 		cout << "Read from client: " << word << endl;
-		close(newsockfd);
+		close(sock);
 	}
 }
