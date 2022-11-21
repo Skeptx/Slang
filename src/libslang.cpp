@@ -151,7 +151,7 @@ void SlangLib::servConnect() {
 		}*/
 		wordleWrite(newsockfd, "5(HELLO)");
 		string word = wordleRead(newsockfd);
-		cout << "Read from server: " << word << endl;
+		cout << "Read from client: " << word << endl;
 		close(newsockfd);
 	}
 }
