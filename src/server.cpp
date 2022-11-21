@@ -3,8 +3,8 @@
 #include <fstream>
 #include <unordered_map>
 #include "libslang.h"
-
 using namespace std;
+
 
 void readIntoMap(unordered_map<string, bool>& stringHash) {
 
@@ -30,6 +30,7 @@ int main() {
 
 	unordered_map<string, bool> stringHash;
 	readIntoMap(stringHash);
+
 
 	string test;
         cout << "Map Search: " << flush;

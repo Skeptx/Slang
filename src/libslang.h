@@ -20,13 +20,13 @@ public:
 	SlangLib(char connectionType, void(* readHandler)(char *));
 	string wordleRead(int sock);
 	void wordleWrite(int sock, string message);
-	void init(int portNumber, string hostname);
-	void init(int portNumber);
-	int errorChecking(int recvCheck,int connectCheck, int sockCheck);
+	void init();
+	void cliConnect();
+	void servConnect();
 private:
 	char connectionType;
 	string hostname;
-	unsigned short portNumber;
+	int portNumber;
 	void(* messageHandler)(char *);
 };
 

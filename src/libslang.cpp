@@ -21,11 +21,17 @@
 #include <netdb.h>
 #include "libslang.h"
 
-SlangLib::SlangLib(char connectionType, void (* messageHandler)(char *)) : connectionType(toupper(connectionType)), messageHandler(messageHandler) {
-    if(connectionType != 'C' && connectionType != 'S') {
-        cout << "ERROR: Invalid connection type!" << endl;
-        exit(EXIT_FAILURE);
-	}
+SlangLib::SlangLib(char connectionType, int portNumber, string hostname) :
+        connectionType(toupper(connectionType),
+        portNumber(portNumber), hostname(hostname)) {
+
+
+        if(connectionType != 'C' && connectionType != 'S') {
+
+
+                cout << "ERROR: Invalid connection type!" << endl;
+                exit(EXIT_FAILURE);
+        }
 }
 
 string SlangLib::wordleRead(int sock){
@@ -36,16 +42,40 @@ string SlangLib::wordleRead(int sock){
 	return recv;
 }
 
-void SlangLib::wordleWrite(int sock, string message){
+void SlangLib::wordleWrite(int sock,sed 's/\([A-Z]\)/\L\1/g' temp string message){
     int sending = write(sock, message.c_str(), message.length());
     if(sending == -1){
         perror("Error Sending Message");
     }
 }
 
-void SlangLib::init(int portNumber, string hostname){
-	this->hostname = hostname;
-	this->portNumber = portNumber;
+void SlangLib::init() {
+
+
+        switch(connectionType) {
+
+
+        case 'C':
+
+
+                cliConnect();
+                break;
+        case 'S':
+
+
+                servConnect();
+                break;
+        default:
+
+
+                cout << "ERROR: Invalid connection type!" << endl;
+                exit(EXIT_FAILURE);
+                break;
+        }
+}
+void SlangLib::cliConnect(){
+
+
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == -1){
         perror("Socket Error\n");
@@ -75,18 +105,18 @@ void SlangLib::init(int portNumber, string hostname){
 	string word = wordleRead(sock);
 	cout << "CLIENT RECV: " << word << endl;
 	sleep(1);
-	cout << "CLIENT SEND: 4(QUIT)\n";
+	cout << "CLIENT SEND: 5(READY)\n";
 	sleep(1);
-	wordleWrite(sock, "4(QUIT)");
+	wordleWrite(sock, "5(READY)");
 	close(sock);
 	freeaddrinfo(hints);
 	freeaddrinfo(baseConnection);
 	sleep(1);
 }
 
-void SlangLib::init(int portNumber) {
-	this->hostname = hostname;
-	this->portNumber = portNumber;
+void SlangLib::servConnect() {
+
+
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == -1){
         perror("Socket Error\n");
@@ -121,24 +151,7 @@ void SlangLib::init(int portNumber) {
 		}*/
 		wordleWrite(newsockfd, "5(HELLO)");
 		string word = wordleRead(newsockfd);
+		cout << "Read from server: " << word << endl;
 		close(newsockfd);
 	}
-}
-
-int SlangLib::errorChecking(int recvCheck,int connectCheck, int sockCheck){
-    if(recvCheck == -1){
-        perror("Error in recieving message\n");
-        return -1;
-    } // check when call recv
-
-    if(connectCheck == -1){
-        perror("Error Connecting\n");
-        return -1;
-    } // check when call connect
-
-    if(sockCheck == -1){
-        perror("Error in Creating Socket\n");
-        return -1;
-    } // check when socket is created
-    return 0;
 }
