@@ -22,8 +22,8 @@
 #include "libslang.h"
 
 SlangLib::SlangLib(char connectionType, int portNumber, string hostname) :
-        connectionType(toupper(connectionType),
-        portNumber(portNumber), hostname(hostname)) {
+        connectionType(toupper(connectionType)),
+        portNumber(portNumber), hostname(hostname) {
 
 
         if(connectionType != 'C' && connectionType != 'S') {
