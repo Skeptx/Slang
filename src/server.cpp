@@ -1,33 +1,54 @@
 #include <cstdio>
 #include <iostream>
+#include <fstream>
 #include <unordered_map>
-
 #include "libslang.h"
 
 using namespace std;
 
-void readIntoMap(unordered_map<unsigned long long int, bool> *map) {
-	FILE *file = fopen("words.dat", "rb");
-	if (!file) {
-		perror("Error: fopen failed");
-		exit(EXIT_FAILURE);
-	}
-	unsigned long long int key = 0LL;
-	while (fread(&key, 5, 1, file)) {
-		(*map)[key] = true;
-	}
-	if (fclose(file)) {
-		perror("Error: fclose failed");
-	}
+void readIntoMap(unordered_map<string, bool>& stringHash) {
+
+
+        ifstream inFile;
+        string fileName = "words.txt";
+        inFile.open(fileName);
+
+
+        string word;
+        while(inFile >> word) {
+
+
+                stringHash[word] = 1;
+        }
 }
 
 void messageHandler(char *message) {
 }
 
 int main() {
-	unordered_map<unsigned long long int, bool> map;
-	//readIntoMap(&map);
+
+
+	unordered_map<string, bool> stringHash;
+	readIntoMap(stringHash);
+
+	string test;
+        cout << "Map Search: " << flush;
+        cin >> test;
+        if(stringHash.find(test) == stringHash.end()) {
+
+
+                cout << "Word Not Found!" << endl;
+        }
+        else {
+
+
+                cout << "Word Found! WOO!" << endl;
+        }
+
+
 	SlangLib slang('S', messageHandler);
 	slang.init(46257);
+
+
 	return 0;
 }
