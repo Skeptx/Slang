@@ -149,7 +149,7 @@ void SlangLib::servConnect() {
 			printf("Error: pthread_create failed: %s\n", strerror(err));
 		}*/
 		wordleWrite(newsockfd, "5(HELLO)");
-		string word = wordleRead(sock);
+		string word = wordleRead(newsockfd);
 		cout << "Read from client: " << word << endl;
 		close(newsockfd);
 	}
