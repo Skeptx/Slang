@@ -47,8 +47,7 @@ int main() {
         }
 
 
-	SlangLib slang('S', messageHandler);
-	slang.init(46257);
+	SlangLib slang('S', 46257, "acad.kutztown.edu");
 
 
 	return 0;
