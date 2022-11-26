@@ -99,12 +99,12 @@ void SlangLib::cliConnect(){
 		freeaddrinfo(baseConnection);
 		exit(EXIT_FAILURE);
 	}
-	string word = wordleRead(sock);
+	string word = wordleRead();
 	cout << "CLIENT RECV: " << word << endl;
 	sleep(1);
 	cout << "CLIENT SEND: 5(READY)\n";
 	sleep(1);
-	wordleWrite(sock, "9(READYSERV)");
+	wordleWrite("9(READYSERV)");
 	close(sock);
 	freeaddrinfo(hints);
 	freeaddrinfo(baseConnection);
@@ -144,8 +144,8 @@ void SlangLib::servConnect() {
 		if (err) {
 			printf("Error: pthread_create failed: %s\n", strerror(err));
 		}*/
-		wordleWrite(newsockfd, "5(HELLO)");
-		string word = wordleRead(newsockfd);
+		wordleWrite("5(HELLO)");
+		string word = wordleRead();
 		cout << "Read from client: " << word << endl;
 		close(newsockfd);
         close(sock);
