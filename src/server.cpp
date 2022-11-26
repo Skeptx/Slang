@@ -33,11 +33,11 @@ int main() {
 	readIntoMap(stringHash);
 
 
+
+
+
 	SlangLib slang('S', 46257, "acad.kutztown.edu");
-	cout << "Test 1: " << slang.checkWord("NOOSL","POOLS");
-	cout << "Test 2: " << slang.checkWord("POOLS", "POOLS");
-	cout << "Test 3: " << slang.checkWord("NKHOO", "POOLS");
-        //slang.init();
+        slang.init();
 
 
 	return 0;
