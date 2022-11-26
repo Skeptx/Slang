@@ -66,7 +66,7 @@ int main() {
 
 
         const string correctAns = stringVector[randomNumGen(fileLength)];
-
+        cout << "RANDOMLY GENERATED CORRECT ANSWER: " << correctAns << endl;
 
 	SlangLib slang('S', 46257, "acad.kutztown.edu");
         slang.init();
