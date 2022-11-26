@@ -34,7 +34,7 @@ SlangLib::SlangLib(char connectionType, int portNumber, string hostname) :
         }
 }
 
-string SlangLib::wordleRead(int sock){
+string SlangLib::wordleRead(){
     char *recvChar = (char *)malloc(10);
 	read(sock, recvChar, 9);
 	string recv(recvChar);
@@ -42,7 +42,7 @@ string SlangLib::wordleRead(int sock){
 	return recv;
 }
 
-void SlangLib::wordleWrite(int sock, string message){
+void SlangLib::wordleWrite(string message){
     int sending = write(sock, message.c_str(), message.length());
     if(sending == -1){
         perror("Error Sending Message");
@@ -50,7 +50,7 @@ void SlangLib::wordleWrite(int sock, string message){
 }
 
 void SlangLib::init() {
-
+        sock = socket(AF_INET, SOCK_STREAM, 0);
 
         switch(connectionType) {
 
@@ -74,8 +74,6 @@ void SlangLib::init() {
 }
 void SlangLib::cliConnect(){
 
-
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == -1){
         perror("Socket Error\n");
         exit(EXIT_FAILURE);
@@ -106,7 +104,7 @@ void SlangLib::cliConnect(){
 	sleep(1);
 	cout << "CLIENT SEND: 5(READY)\n";
 	sleep(1);
-	wordleWrite(sock, "5(READY)");
+	wordleWrite(sock, "9(READYSERV)");
 	close(sock);
 	freeaddrinfo(hints);
 	freeaddrinfo(baseConnection);
@@ -115,8 +113,6 @@ void SlangLib::cliConnect(){
 
 void SlangLib::servConnect() {
 
-
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == -1){
         perror("Socket Error\n");
         exit(EXIT_FAILURE);
@@ -154,4 +150,15 @@ void SlangLib::servConnect() {
 		close(newsockfd);
         close(sock);
 	}
+}
+void SlangLib::checkWord(string guessed, string correct){
+    string outputString = ".....";
+    for(int i = 0; i < correct.length(); i++){
+        if(guessed[i] = correct[i]){
+            outputString[i] = '!';
+        }
+        if(){
+
+        }
+    }
 }

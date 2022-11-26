@@ -18,11 +18,12 @@ using namespace std;
 class SlangLib {
 public:
 	SlangLib(char connectionType, int portNumber, string hostname);
-	string wordleRead(int sock);
-	void wordleWrite(int sock, string message);
+	string wordleRead();
+	void wordleWrite(string message);
 	void init();
 	void cliConnect();
 	void servConnect();
+	void checkWord(string guessed, string correct);
 private:
 	char connectionType;
 	string hostname;
