@@ -32,14 +32,17 @@ void readIntoVector(vector<string>& stringVector) {
 
         ifstream inFile;
         string fileName = "words.txt";
+        inFile.open(fileName);
 
 
         string word;
         while(inFile >> word) {
 
 
+                cout << "Loaded: " << word << endl;
                 stringVector.push_back(word);
         }
+        inFile.close();
 }
 
 
@@ -58,10 +61,12 @@ int main() {
 	//readIntoMap(stringHash);
         vector<string> stringVector;
         readIntoVector(stringVector);
+        int randIndex = randomNumGen(stringVector.size());
 
 
-        const string correctAns = stringVector[randomNumGen(stringVector.size())];
+        const string correctAns = stringVector[randIndex];
         cout << "RANDOMLY GENERATED CORRECT ANSWER: " << correctAns << endl;
+
 
 	SlangLib slang('S', 46257, "acad.kutztown.edu");
         slang.init();
