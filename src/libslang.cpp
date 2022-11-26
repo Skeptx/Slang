@@ -151,14 +151,26 @@ void SlangLib::servConnect() {
         close(sock);
 	}
 }
-void SlangLib::checkWord(string guessed, string correct){
-    string outputString = ".....";
-    for(int i = 0; i < correct.length(); i++){
-        if(guessed[i] = correct[i]){
-            outputString[i] = '!';
-        }
-        if(){
+string SlangLib::checkWord(string guessed, const string correct){
 
+
+    for(int i = 0; i < correct.length(); i++){
+        if(correct.find(guessed[i]) != string::npos
+                && correct[i] == guessed[i]){
+
+
+                guessed[i] = '!';
+        }
+        else if(correct.find(guessed[i]) != string::npos) {
+
+
+                guessed[i] = '?';
+        }
+        else {
+
+
+                guessed[i] = '.';
         }
     }
+    return guessed;
 }

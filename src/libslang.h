@@ -23,7 +23,7 @@ public:
 	void init();
 	void cliConnect();
 	void servConnect();
-	void checkWord(string guessed, string correct);
+	string checkWord(string guessed, const string correct);
 private:
 	char connectionType;
 	string hostname;
