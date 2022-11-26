@@ -34,7 +34,10 @@ int main() {
 
 
 	SlangLib slang('S', 46257, "acad.kutztown.edu");
-        slang.init();
+	cout << "Test 1: " << slang.checkWord("NOOSL","POOLS");
+	cout << "Test 2: " << slang.checkWord("POOLS", "POOLS");
+	cout << "Test 3: " << slang.checkWord("NKHOO", "POOLS");
+        //slang.init();
 
 
 	return 0;
