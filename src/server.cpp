@@ -27,7 +27,7 @@ void readIntoMap(unordered_map<string, bool>& stringHash) {
 }
 */
 
-int readIntoVector(vector<string>& stringVector) {
+void readIntoVector(vector<string>& stringVector) {
 
 
         ifstream inFile;
@@ -35,16 +35,11 @@ int readIntoVector(vector<string>& stringVector) {
 
 
         string word;
-        int length = 0;
         while(inFile >> word) {
 
 
                 stringVector.push_back(word);
-                length++;
         }
-
-
-        return length;
 }
 
 
@@ -52,7 +47,7 @@ int randomNumGen(int maxInt) {
 
 
         default_random_engine gen;
-        uniform_int_distribution<int> dist(1, maxInt);
+        uniform_int_distribution<int> dist(0, maxInt - 1);
         return dist(gen);
 }
 
@@ -62,10 +57,10 @@ int main() {
 	//unordered_map<string, bool> stringHash;
 	//readIntoMap(stringHash);
         vector<string> stringVector;
-        int fileLength = readIntoVector(stringVector);
+        readIntoVector(stringVector);
 
 
-        const string correctAns = stringVector[randomNumGen(fileLength)];
+        const string correctAns = stringVector[randomNumGen(stringVector.size())];
         cout << "RANDOMLY GENERATED CORRECT ANSWER: " << correctAns << endl;
 
 	SlangLib slang('S', 46257, "acad.kutztown.edu");
