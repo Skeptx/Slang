@@ -39,7 +39,6 @@ void readIntoVector(vector<string>& stringVector) {
         while(inFile >> word) {
 
 
-                cout << "Loaded: " << word << endl;
                 stringVector.push_back(word);
         }
         inFile.close();
@@ -53,6 +52,7 @@ int randomNumGen(int maxInt) {
         uniform_int_distribution<int> dist(0, maxInt - 1);
         return dist(gen);
 }
+
 
 int main() {
 
