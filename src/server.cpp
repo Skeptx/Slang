@@ -25,29 +25,12 @@ void readIntoMap(unordered_map<string, bool>& stringHash) {
 
 }
 
-void messageHandler(char *message) {
-}
 
 int main() {
 
 
 	unordered_map<string, bool> stringHash;
 	readIntoMap(stringHash);
-
-
-        string test;
-        cout << "Map Search: " << flush;
-        cin >> test;
-        if(stringHash.find(test) == stringHash.end()) {
-
-
-                cout << "Word Not Found!" << endl;
-        }
-        else {
-
-
-                cout << "Word Found! WOO!" << endl;
-        }
 
 
 	SlangLib slang('S', 46257, "acad.kutztown.edu");

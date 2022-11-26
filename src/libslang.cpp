@@ -155,3 +155,8 @@ void SlangLib::servConnect() {
         close(sock);
 	}
 }
+void SlangLib::send(string message) {
+
+
+
+}

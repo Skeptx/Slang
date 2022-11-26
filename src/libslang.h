@@ -23,6 +23,7 @@ public:
 	void init();
 	void cliConnect();
 	void servConnect();
+	void send(string message);
 private:
 	char connectionType;
 	string hostname;
