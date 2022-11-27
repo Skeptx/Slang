@@ -54,11 +54,21 @@ int randomNumGen(int maxInt) {
 }
 
 
-int main() {
+int main(int argc, char** argv) {
 
 
 	//unordered_map<string, bool> stringHash;
 	//readIntoMap(stringHash);
+	if(argc < 3) {
+
+
+                cout << "./slang-server <hostname> <port>" << endl;
+                exit(EXIT_FAILURE);
+	}
+	const string hostName = argv[1];
+	const int portNumber = argv[2];
+
+
         vector<string> stringVector;
         readIntoVector(stringVector);
         int randIndex = randomNumGen(stringVector.size());
@@ -68,7 +78,7 @@ int main() {
         cout << "RANDOMLY GENERATED CORRECT ANSWER: " << correctAns << endl;
 
 
-	SlangLib slang('S', 46257, "acad.kutztown.edu");
+	SlangLib slang('S', portNumber, hostName);
         slang.init();
 
 
