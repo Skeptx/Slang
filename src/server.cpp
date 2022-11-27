@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
                 exit(EXIT_FAILURE);
 	}
 	const string hostName = argv[1];
-	const int portNumber = argv[2];
+	const int portNumber = atoi(argv[2]);
 
 
         vector<string> stringVector;
