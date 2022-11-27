@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <random>
 #include <fstream>
@@ -48,9 +49,8 @@ void readIntoVector(vector<string>& stringVector) {
 int randomNumGen(int maxInt) {
 
 
-        default_random_engine gen;
-        uniform_int_distribution<int> dist(0, maxInt - 1);
-        return dist(gen);
+        srand(time(NULL));
+        return rand() % maxInt;
 }
 
 
