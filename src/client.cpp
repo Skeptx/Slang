@@ -510,7 +510,7 @@ char set_theme(char *arg) {
 	return 0;
 }
 
-char SlangWrite(char *buffer, char const * const expected) {
+char write_to_server(char *buffer, char const * const expected) {
 	char original[9];
 	strcpy(original, buffer);
 	SlangWrite(slang->getSocket(), buffer);
@@ -532,7 +532,7 @@ char SlangWrite(char *buffer, char const * const expected) {
 	return result;
 }
 
-char SlangRead(char *buffer, char const * const expected) {
+char read_from_server(char *buffer, char const * const expected) {
 	SlangRead(slang->getSocket(), buffer);
 	fprintf(file, "Read: \"%s\"\r\n", buffer);
 	if (strcmp(buffer, expected)) {
