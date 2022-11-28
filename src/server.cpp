@@ -107,10 +107,10 @@ int main(int argc, char** argv) {
 
 
                 int newsockfd = accept(
-                                sock,
-                                (struct sockaddr *)&activeConnection,
-                                &infolen
-                        );
+                        sock,
+                        (struct sockaddr *)&activeConnection,
+                        &infolen
+                );
                 if (newsockfd < 0) {
 
 
