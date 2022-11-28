@@ -59,14 +59,14 @@ int main(int argc, char** argv) {
 
 	//unordered_map<string, bool> stringHash;
 	//readIntoMap(stringHash);
-	if(argc < 3) {
+	const string hostName = "acad.kutztown.edu";
+	if(argc < 2) {
 
 
-                cout << "./slang-server <hostname> <port>" << endl;
+                cout << "./slang-server <port>" << endl;
                 exit(EXIT_FAILURE);
 	}
-	const string hostName = argv[1];
-	const int portNumber = atoi(argv[2]);
+	const int portNumber = atoi(argv[1]);
 
 
         vector<string> stringVector;
