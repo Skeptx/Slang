@@ -21,6 +21,7 @@
 #include <netdb.h>
 #include "libslang.h"
 
+
 SlangLib::SlangLib(char connectionType, int portNumber, string hostname) :
         connectionType(toupper(connectionType)),
         portNumber(portNumber), hostname(hostname) {
@@ -34,6 +35,14 @@ SlangLib::SlangLib(char connectionType, int portNumber, string hostname) :
         }
 }
 
+
+int SlangLib::getSock() {
+
+
+        return sock;
+}
+
+
 string SlangLib::wordleRead(){
     char *recvChar = (char *)malloc(10);
 	read(sock, recvChar, 9);
@@ -42,6 +51,7 @@ string SlangLib::wordleRead(){
 	return recv;
 }
 
+
 void SlangLib::wordleWrite(string message){
     int sending = write(sock, message.c_str(), message.length());
     if(sending == -1){
@@ -49,8 +59,10 @@ void SlangLib::wordleWrite(string message){
     }
 }
 
+
 void SlangLib::init() {
         sock = socket(AF_INET, SOCK_STREAM, 0);
+
 
         switch(connectionType) {
 
@@ -72,6 +84,8 @@ void SlangLib::init() {
                 exit(EXIT_FAILURE);
         }
 }
+
+
 void SlangLib::cliConnect(){
 
     if(sock == -1){
@@ -111,6 +125,7 @@ void SlangLib::cliConnect(){
 	sleep(1);
 }
 
+
 void SlangLib::servConnect() {
 
     if(sock == -1){
@@ -132,25 +147,9 @@ void SlangLib::servConnect() {
 		perror("Error in Listen Call:\n");
 		exit(EXIT_FAILURE);
 	}
-	socklen_t infolen = sizeof(activeConnection);
-	while (true) {
-		int newsockfd = accept(sock, (struct sockaddr *)&activeConnection, &infolen);
-		if (newsockfd < 0) {
-			perror("Error in Accepting Connections");
-			continue;
-		}
-		/*pthread_t tid;
-		int err = pthread_create(&tid, NULL, connectionHandler, &tid));
-		if (err) {
-			printf("Error: pthread_create failed: %s\n", strerror(err));
-		}*/
-		wordleWrite("5(HELLO)");
-		string word = wordleRead();
-		cout << "Read from client: " << word << endl;
-		close(newsockfd);
-        close(sock);
-	}
 }
+
+
 string SlangLib::checkWord(string guessed, const string correct){
 
 

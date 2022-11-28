@@ -18,6 +18,7 @@ using namespace std;
 class SlangLib {
 public:
 	SlangLib(char connectionType, int portNumber, string hostname);
+	int getSock();
 	string wordleRead();
 	void wordleWrite(string message);
 	void init();

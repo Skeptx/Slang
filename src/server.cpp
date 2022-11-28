@@ -4,6 +4,16 @@
 #include <random>
 #include <fstream>
 #include <vector>
+#include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <string.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <netdb.h>
 #include "libslang.h"
 using namespace std;
 
@@ -46,7 +56,7 @@ void readIntoVector(vector<string>& stringVector) {
 }
 
 
-int randomNumGen(int maxInt) {
+int randNumGen(int maxInt) {
 
 
         srand(time(NULL));
@@ -71,16 +81,41 @@ int main(int argc, char** argv) {
 
         vector<string> stringVector;
         readIntoVector(stringVector);
-        int randIndex = randomNumGen(stringVector.size());
+        int randIndex = randNumGen(stringVector.size());
 
 
         const string correctAns = stringVector[randIndex];
         cout << "RANDOMLY GENERATED CORRECT ANSWER: " << correctAns << endl;
 
 
-	SlangLib slang('S', portNumber, hostName);
-        slang.init();
+	SlangLib server('S', portNumber, hostName);
+        server.init();
 
+
+        int sock = server.getSock();
+        struct sockaddr_in activeConnection;
+        socklen_t infolen = sizeof(activeConnection);
+        while(1) {
+
+
+                int newsockfd = accept(
+                                sock,
+                                (struct sockaddr *)&activeConnection,
+                                &infolen
+                        );
+                if (newsockfd < 0) {
+
+
+                        perror("Error in Accepting Connections");
+                        continue;
+                }
+
+                server.wordleWrite("5(HELLO)");
+                string word = server.wordleRead();
+                cout << "Read from client: " << word << endl;
+                close(newsockfd);
+                close(sock);
+	}
 
 	return 0;
 }
