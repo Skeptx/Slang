@@ -3,7 +3,7 @@
 #include <iostream>
 #include <random>
 #include <fstream>
-#include <unordered_map>
+#include <unorder
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -18,7 +18,7 @@
 using namespace std;
 
 
-void readIntoMap(unordered_map<int, string>& stringHash) {
+void readIntoMap(unordered_map<string, bool>& stringHash) {
 
 
         ifstream inFile;
@@ -31,11 +31,36 @@ void readIntoMap(unordered_map<int, string>& stringHash) {
         while(inFile >> word) {
 
 
-                stringHash[count++] = word;
+                stringHash[word] = 1;
         }
         inFile.close();
 
 
+}
+
+
+void readIntoVector(vector<string>& stringVector) {
+
+
+        ifstream inFile;
+        string fileName = "words.txt";
+        inFile.open(fileName);
+
+
+        string word;
+        while(inFile >> word) {
+
+
+                stringVector.push_back(word);
+        }
+        inFile.close();
+}
+
+
+bool isValidWord(string word, unordered_map<string, bool>& stringHash) {
+
+
+        return stringHash.find(word) != stringHash.end();
 }
 
 
@@ -60,12 +85,14 @@ int main(int argc, char** argv) {
         const string hostName = "acad.kutztown.edu";
 
 
-        unordered_map<int, string> stringHash;
+        unordered_map<string, bool> stringHash;
+        vector<string> stringVector;
 	readIntoMap(stringHash);
-        int randIndex = randNumGen(stringHash.size());
+	readIntoVector(stringVector);
+        int randIndex = randNumGen(stringVector.size());
 
 
-        const string correctAns = stringHash[randIndex];
+        const string correctAns = stringVector[randIndex];
         cout << "RANDOMLY GENERATED CORRECT ANSWER: " << correctAns << endl;
 
 
