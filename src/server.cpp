@@ -3,12 +3,22 @@
 #include <iostream>
 #include <random>
 #include <fstream>
-#include <vector>
+#include <unordered_map>
+#include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <string.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <netdb.h>
 #include "libslang.h"
 using namespace std;
 
-/*
-void readIntoMap(unordered_map<string, bool>& stringHash) {
+
+void readIntoMap(unordered_map<int, string>& stringHash) {
 
 
         ifstream inFile;
@@ -17,36 +27,19 @@ void readIntoMap(unordered_map<string, bool>& stringHash) {
 
 
         string word;
+        int count = 0;
         while(inFile >> word) {
 
 
-                stringHash[word] = 1;
+                stringHash[count++] = word;
         }
         inFile.close();
 
 
 }
-*/
-
-void readIntoVector(vector<string>& stringVector) {
 
 
-        ifstream inFile;
-        string fileName = "words.txt";
-        inFile.open(fileName);
-
-
-        string word;
-        while(inFile >> word) {
-
-
-                stringVector.push_back(word);
-        }
-        inFile.close();
-}
-
-
-int randomNumGen(int maxInt) {
+int randNumGen(int maxInt) {
 
 
         srand(time(NULL));
@@ -57,9 +50,6 @@ int randomNumGen(int maxInt) {
 int main(int argc, char** argv) {
 
 
-	//unordered_map<string, bool> stringHash;
-	//readIntoMap(stringHash);
-	const string hostName = "acad.kutztown.edu";
 	if(argc < 2) {
 
 
@@ -67,20 +57,46 @@ int main(int argc, char** argv) {
                 exit(EXIT_FAILURE);
 	}
 	const int portNumber = atoi(argv[1]);
+        const string hostName = "acad.kutztown.edu";
 
 
-        vector<string> stringVector;
-        readIntoVector(stringVector);
-        int randIndex = randomNumGen(stringVector.size());
+        unordered_map<int, string> stringHash;
+	readIntoMap(stringHash);
+        int randIndex = randNumGen(stringHash.size());
 
 
-        const string correctAns = stringVector[randIndex];
+        const string correctAns = stringHash[randIndex];
         cout << "RANDOMLY GENERATED CORRECT ANSWER: " << correctAns << endl;
 
 
-	SlangLib slang('S', portNumber, hostName);
-        slang.init();
+	SlangLib server('S', portNumber, hostName);
+        server.init();
 
+
+        int sock = server.getSock();
+        struct sockaddr_in activeConnection;
+        socklen_t infolen = sizeof(activeConnection);
+        while(1) {
+
+
+                int newsockfd = accept(
+                                sock,
+                                (struct sockaddr *)&activeConnection,
+                                &infolen
+                        );
+                if (newsockfd < 0) {
+
+
+                        perror("Error in Accepting Connections");
+                        continue;
+                }
+
+                server.wordleWrite("5(HELLO)");
+                string word = server.wordleRead();
+                cout << "Read from client: " << word << endl;
+                close(newsockfd);
+                close(sock);
+	}
 
 	return 0;
 }
