@@ -173,3 +173,8 @@ string SlangLib::checkWord(string guessed, const string correct){
     }
     return guessed;
 }
+
+string SlangLib::formatClient(string input){
+        string newGuessed = "G(" + input + ")";
+        return newGuessed;
+}

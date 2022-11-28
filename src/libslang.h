@@ -25,6 +25,7 @@ public:
 	void cliConnect();
 	void servConnect();
 	string checkWord(string guessed, const string correct);
+	string formatClient(string input);
 private:
 	char connectionType;
 	string hostname;
