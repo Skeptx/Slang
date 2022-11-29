@@ -46,7 +46,6 @@ SlangLib::SlangLib(int portNumber, void *(*accepted)(void *)) : portNumber(portN
 			continue;
 		}
 		pthread_t tid;
-		vector<pthread_t> vecOfThreads;
 		int err = pthread_create(&tid, NULL, accepted, &newsock);
 		vecOfThreads.push_back(tid);
 		if (err) {
@@ -56,6 +55,9 @@ SlangLib::SlangLib(int portNumber, void *(*accepted)(void *)) : portNumber(portN
 }
 
 SlangLib::SlangLib(int portNumber, char *hostname) : portNumber(portNumber), hostname(hostname) {
+	signal(SIGKILL,killThreads);
+	signal(SIGTERM,killThreads);
+	signal(SIGINT,killThreads);
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if(sock == -1){
 		perror("Error: socket failed");
@@ -193,4 +195,12 @@ string SlangCheck(string guessed, const string correct) {
                 }
         }
 	return guessed;
+}
+
+void SlangLib::killThreads(){
+
+	for(int i = 0; i < vecOfThreads.size(), i++){
+
+		pthread_exit(vecOfThreads[i]);
+	}
 }

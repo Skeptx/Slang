@@ -2,6 +2,7 @@
 #define SLANGLIB_H
 
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -15,9 +16,11 @@ public:
 	SlangLib(int portNumber, char *hostname);
 	bool isOpen();
 	int getSocket();
+	void killThreads();
 private:
 	char *hostname;
 	int portNumber;
+	vector<pthread_t> vecOfThreads;
 	int sock;
 	bool open;
 	void *(*accepted)(void *);
