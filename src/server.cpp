@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <random>
 #include <fstream>
@@ -49,16 +50,15 @@ int randNumGen(int maxInt) {
 void *accepted(void *arg) {
 	int sock = *(int *)arg;
 	SlangWrite(sock, "5(HELLO)");
-	char *word = SlangRead(sock, NULL);
-	free(word);
-	
-	
-	int randIndex = randNumGen(stringVector.size());
-	const string correctAns = stringVector[randIndex];
-	cout << "RANDOMLY GENERATED CORRECT ANSWER: " << correctAns << endl;
-	
-	
-	SlangWrite(sock, "5(START)");
+	char *buffer = SlangRead(sock, NULL);
+	while (!strcmp(buffer, "5(READY)")) {
+		int randIndex = randNumGen(stringVector.size());
+		const string correctAns = stringVector[randIndex];
+		SlangWrite(sock, "5(START)");
+		// MORE READS AND WRITES
+		// KEEP TRACK OF NUMBER OF GUESSES
+	}
+	free(buffer);
 	close(sock);
 	return NULL;
 }
