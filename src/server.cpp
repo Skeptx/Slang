@@ -27,6 +27,7 @@ void readIntoMap(unordered_map<string, bool>& stringHash) {
 	inFile.close();
 }
 
+
 void readIntoVector(vector<string>& stringVector) {
 	ifstream inFile;
 	string fileName = "words.txt";
@@ -38,25 +39,59 @@ void readIntoVector(vector<string>& stringVector) {
 	inFile.close();
 }
 
+
 bool isValidWord(string word, unordered_map<string, bool>& stringHash) {
 	return stringHash.find(word) != stringHash.end();
 }
+
 
 int randNumGen(int maxInt) {
 	srand(time(NULL));
 	return rand() % maxInt;
 }
 
+
 void *accepted(void *arg) {
 	int sock = *(int *)arg;
 	SlangWrite(sock, "5(HELLO)");
 	char *buffer = SlangRead(sock, NULL);
+	int guesses = 1;
 	while (!strcmp(buffer, "5(READY)")) {
+
+
 		int randIndex = randNumGen(stringVector.size());
 		const string correctAns = stringVector[randIndex];
 		SlangWrite(sock, "5(START)");
-		// MORE READS AND WRITES
-		// KEEP TRACK OF NUMBER OF GUESSES
+
+
+                while(guesses <= 6) {
+
+
+                        buffer = SlangRead(sock, buffer);
+                        if(!strcmp(buffer, "4(QUIT)") && !strcmp(buffer, "5(REPLY)")) {
+
+
+                                string guessWord;
+                                for(int i = 2; i <= 6; i++) {
+
+
+                                        guessWord += buffer[i];
+                                }
+                                if(isValidWord(guessWord)) {
+
+
+                                        guessWord = SlangCheck(guessWord, correctAns);
+                                        guessWord = "R(" + guessWord + ")";
+                                        SlangWrite(sock, guessWord.c_str());
+                                        guesses++;
+                                }
+                                else {
+                                        SlangWrite(sock, "5(WRONG)");
+                                }
+                        }
+                        // MORE READS AND WRITES
+                        // KEEP TRACK OF NUMBER OF GUESSES
+                }
 	}
 	free(buffer);
 	close(sock);

@@ -145,7 +145,9 @@ void SlangWrite(int sockfd, char const * const message) {
 
 string SlangCheck(string guessed, const string correct) {
 
-
+        // 0 is correct
+        // 2 is wrong position
+        // 4 is not in word
         string mutableCorrect = correct;
         int foundIndex = 0;
         for(int i = 0; i < mutableCorrect.length(); i++) {
@@ -154,7 +156,7 @@ string SlangCheck(string guessed, const string correct) {
                 if(mutableCorrect[i] == guessed[i]) {
 
 
-                        guessed[i] = '!';
+                        guessed[i] = '0';
                         mutableCorrect[i] = ' ';
                 }
                 else {
@@ -166,7 +168,7 @@ string SlangCheck(string guessed, const string correct) {
         for(int i = 0; i < mutableCorrect.length(); i++) {
 
 
-                if(guessed[i] == '?' || guessed[i] == '!') {
+                if(guessed[i] == '2' || guessed[i] == '0') {
 
 
                         continue;
@@ -175,17 +177,17 @@ string SlangCheck(string guessed, const string correct) {
                         string::npos && mutableCorrect[i] != guessed[i]) {
 
 
-                        guessed[i] = '?';
+                        guessed[i] = '2';
                         mutableCorrect[foundIndex] = ' ';
                 }
         }
         for(int i = 0; i < mutableCorrect.length(); i++) {
 
 
-                if(guessed[i] != '?' && guessed[i] != '!') {
+                if(guessed[i] != '2' && guessed[i] != '0') {
 
 
-                        guessed[i] = '.';
+                        guessed[i] = '4';
                 }
         }
 	return guessed;
