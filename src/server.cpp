@@ -55,17 +55,16 @@ void *accepted(void *arg) {
 	int sock = *(int *)arg;
 	SlangWrite(sock, "5(HELLO)");
 	char *buffer = SlangRead(sock, NULL);
-	int guesses = 1;
+	int guesses;
 	while (!strcmp(buffer, "5(READY)")) {
 
 
 		int randIndex = randNumGen(stringVector.size());
 		const string correctAns = stringVector[randIndex];
 		SlangWrite(sock, "5(START)");
-
-
 		string guessWord;
 		string response = "5(START)";
+		guesses = 1;
 		while(guesses <= 6) {
 
 

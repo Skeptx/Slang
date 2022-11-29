@@ -257,7 +257,6 @@ int main(int argc, char **argv) {
 			}
 		}
 	}*/
-	status = 1;
 	int input = 0;
 	while (input != 27) {
 		strcpy(buffer, "5(READY)");
@@ -265,6 +264,7 @@ int main(int argc, char **argv) {
 			fprintf(stderr, "\r\nError: \"5(START)\" expected (got \"%s\")\r\n", buffer);
 			clean(-3);
 		}
+		status = 1;
 		memset(keyboard + 26, 6, 26);
 		memset(results, 0, 30);
 		memset(results + 30, 16, 5);
@@ -367,7 +367,7 @@ int main(int argc, char **argv) {
 			if (err) {
 				results[word * 5] = buffer[2] - 48;
 				print(-1);
-				short int correct = 0;
+				short int correct = buffer[2];
 				for (int i = 3; i < 7; ++i) {
 					correct += buffer[i];
 					usleep(100000);
@@ -375,6 +375,7 @@ int main(int argc, char **argv) {
 					print(-1);
 				}
 				if (buffer[0] == 'A') {
+					status = 5;
 					for (int i = 7; i < 11; ++i) {
 						words[23 + i] = buffer[i];
 						results[23 + i] = 13;
@@ -383,11 +384,11 @@ int main(int argc, char **argv) {
 					}
 					words[34] = buffer[11];
 					results[34] = 13;
-					status = 5;
 					print(-1);
 					break;
 				}
 				if (correct == 260) {
+					status = 4;
 					for (int i = 0; i < 4; ++i) {
 						words[30 + i] = words[word * 5 + i];
 						results[30 + i] = 10;
@@ -396,7 +397,6 @@ int main(int argc, char **argv) {
 					}
 					words[34] = words[word * 5 + 4];
 					results[34] = 10;
-					status = 4;
 					print(-1);
 					break;
 				}
