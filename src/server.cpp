@@ -1,5 +1,4 @@
 #include <unistd.h>
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -14,6 +13,7 @@
 using namespace std;
 
 vector<string> stringVector;
+
 
 void readIntoMap(unordered_map<string, bool>& stringHash) {
 	ifstream inFile;
