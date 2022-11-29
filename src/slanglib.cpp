@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <vector>
 #include <string>
+#include <csignal>
 
 #include "slanglib.h"
 
