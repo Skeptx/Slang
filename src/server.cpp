@@ -45,7 +45,7 @@ bool isValidWord(string word, unordered_map<string, bool>& stringHash) {
 }
 
 
-int randNumGen(int maxInt) {string guessWord;
+int randNumGen(int maxInt) {
 	srand(time(NULL));
 	return rand() % maxInt;
 }
