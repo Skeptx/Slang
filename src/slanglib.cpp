@@ -28,11 +28,11 @@ SlangLib::SlangLib(int portNumber, void *(*accepted)(void *)) : portNumber(portN
 	addr->sin_port = htons(portNumber);
 	if (bind(sock, (struct sockaddr *)addr, sizeof(struct sockaddr))) {
 		perror("Error: bind failed");
-		freeaddrinfo((struct addrinfo *)addr);
+		free(addr);
 		open = false;
 		return;
 	}
-	freeaddrinfo((struct addrinfo *)addr);
+	free(addr);
 	if (listen(sock, 1280)) {
 		perror("Error: listen failed");
 		open = false;
