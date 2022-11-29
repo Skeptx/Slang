@@ -15,7 +15,7 @@ using namespace std;
 vector<string> stringVector;
 unordered_map<string, bool> stringHash;
 
-void readIntoMap(unordered_map<string, bool>& stringHash) {
+void readIntoMap() {
 	ifstream inFile;
 	string fileName = "words.txt";
 	inFile.open(fileName);
@@ -28,7 +28,7 @@ void readIntoMap(unordered_map<string, bool>& stringHash) {
 }
 
 
-void readIntoVector(vector<string>& stringVector) {
+void readIntoVector() {
 	ifstream inFile;
 	string fileName = "words.txt";
 	inFile.open(fileName);
@@ -40,7 +40,7 @@ void readIntoVector(vector<string>& stringVector) {
 }
 
 
-bool isValidWord(string word, unordered_map<string, bool>& stringHash) {
+bool isValidWord(string word) {
 	return stringHash.find(word) != stringHash.end();
 }
 
@@ -80,7 +80,7 @@ void *accepted(void *arg) {
 
                                         guessWord += buffer[i];
                                 }
-                                if(isValidWord(guessWord, stringHash)) {
+                                if(isValidWord(guessWord)) {
 
 
                                         guessWord = SlangCheck(guessWord, correctAns);
@@ -125,8 +125,8 @@ int main(int argc, char **argv) {
 			return EXIT_SUCCESS;
 		}
 	}
-	readIntoMap(stringHash);
-	readIntoVector(stringVector);
+	readIntoMap();
+	readIntoVector();
 	SlangLib slang(portNumber, &accepted);
 	return 0;
 }
