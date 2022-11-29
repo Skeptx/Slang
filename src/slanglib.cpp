@@ -81,8 +81,8 @@ SlangLib::SlangLib(int portNumber, char *hostname) : portNumber(portNumber), hos
 	}
 	freeaddrinfo(res);
 	open = true;
-	
-	
+
+
 	/*string word = wordleRead();
 	cout << "CLIENT RECV: \"" << word << "\"\n";
 	sleep(1);
@@ -93,7 +93,7 @@ SlangLib::SlangLib(int portNumber, char *hostname) : portNumber(portNumber), hos
 	freeaddrinfo(hints);
 	freeaddrinfo(baseConnection);
 	sleep(1);*/
-	
+
 }
 
 bool SlangLib::isOpen() {
@@ -144,14 +144,49 @@ void SlangWrite(int sockfd, char const * const message) {
 }
 
 string SlangCheck(string guessed, const string correct) {
-	for (int i = 0; i < correct.length(); ++i) {
-		if (correct.find(guessed[i]) != string::npos && correct[i] == guessed[i]){
-			guessed[i] = '!';
-		} else if(correct.find(guessed[i]) != string::npos) {
-			guessed[i] = '?';
-		} else {
-			guessed[i] = '.';
-		}
-	}
+
+
+        string mutableCorrect = correct;
+        int foundIndex = 0;
+        for(int i = 0; i < mutableCorrect.length(); i++) {
+
+
+                if(mutableCorrect[i] == guessed[i]) {
+
+
+                        guessed[i] = '!';
+                        mutableCorrect[i] = ' ';
+                }
+                else {
+
+
+                        continue;
+                }
+        }
+        for(int i = 0; i < mutableCorrect.length(); i++) {
+
+
+                if(guessed[i] == '?' || guessed[i] == '!') {
+
+
+                        continue;
+                }
+                if((foundIndex = mutableCorrect.find(guessed[i])) !=
+                        string::npos && mutableCorrect[i] != guessed[i]) {
+
+
+                        guessed[i] = '?';
+                        mutableCorrect[foundIndex] = ' ';
+                }
+        }
+        for(int i = 0; i < mutableCorrect.length(); i++) {
+
+
+                if(guessed[i] != '?' && guessed[i] != '!') {
+
+
+                        guessed[i] = '.';
+                }
+        }
 	return guessed;
 }
