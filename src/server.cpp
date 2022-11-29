@@ -13,7 +13,7 @@
 using namespace std;
 
 vector<string> stringVector;
-
+unordered_map<string, bool> stringHash;
 
 void readIntoMap(unordered_map<string, bool>& stringHash) {
 	ifstream inFile;
@@ -80,7 +80,7 @@ void *accepted(void *arg) {
 
                                         guessWord += buffer[i];
                                 }
-                                if(isValidWord(guessWord)) {
+                                if(isValidWord(guessWord, stringHash)) {
 
 
                                         guessWord = SlangCheck(guessWord, correctAns);
@@ -125,7 +125,6 @@ int main(int argc, char **argv) {
 			return EXIT_SUCCESS;
 		}
 	}
-	unordered_map<string, bool> stringHash;
 	readIntoMap(stringHash);
 	readIntoVector(stringVector);
 	SlangLib slang(portNumber, &accepted);
