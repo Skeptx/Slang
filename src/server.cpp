@@ -97,7 +97,6 @@ void *accepted(void *arg) {
                         else if(!strcmp(buffer, "4(QUIT)")) {
 
 
-                                cout << "Quitting Server..." << endl;
                                 free(buffer);
                                 close(sock);
                                 return NULL;
