@@ -10,7 +10,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include <vector>
 #include <string>
 
 #include "slanglib.h"
@@ -46,7 +46,9 @@ SlangLib::SlangLib(int portNumber, void *(*accepted)(void *)) : portNumber(portN
 			continue;
 		}
 		pthread_t tid;
+		vector<pthread_t> vecOfThreads;
 		int err = pthread_create(&tid, NULL, accepted, &newsock);
+		vecOfThreads.push_back(tid);
 		if (err) {
 			fprintf(stderr, "Error: pthread_create failed: %s\r\n", strerror(err));
 		}
