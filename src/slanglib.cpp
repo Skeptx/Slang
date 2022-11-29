@@ -111,11 +111,11 @@ int SlangLib::getSocket() {
 
 char *SlangRead(int sockfd, char * buffer) {
 	if (!buffer) {
-		buffer = (char *)malloc(9);
+		buffer = (char *)malloc(14);
 	}
 	char *i = buffer;
-	while (i - buffer < 8) {
-		int reading = read(sockfd, i, buffer - i + 8);
+	while (i - buffer < 13) {
+		int reading = read(sockfd, i, buffer - i + 13);
 		if (reading > 0) {
 			i += reading;
 			if (i[-1] == ')') {
@@ -150,9 +150,9 @@ void SlangWrite(int sockfd, char const * const message) {
 
 string SlangCheck(string guessed, const string correct) {
 
-        // 0 is correct
+        // 4 is correct
         // 2 is wrong position
-        // 4 is not in word
+        // 0 is not in word
         string mutableCorrect = correct;
         int foundIndex = 0;
         for(int i = 0; i < mutableCorrect.length(); i++) {
@@ -161,7 +161,7 @@ string SlangCheck(string guessed, const string correct) {
                 if(mutableCorrect[i] == guessed[i]) {
 
 
-                        guessed[i] = '0';
+                        guessed[i] = '4';
                         mutableCorrect[i] = ' ';
                 }
                 else {
@@ -173,7 +173,7 @@ string SlangCheck(string guessed, const string correct) {
         for(int i = 0; i < mutableCorrect.length(); i++) {
 
 
-                if(guessed[i] == '2' || guessed[i] == '0') {
+                if(guessed[i] == '2' || guessed[i] == '4') {
 
 
                         continue;
@@ -189,19 +189,17 @@ string SlangCheck(string guessed, const string correct) {
         for(int i = 0; i < mutableCorrect.length(); i++) {
 
 
-                if(guessed[i] != '2' && guessed[i] != '0') {
+                if(guessed[i] != '2' && guessed[i] != '4') {
 
 
-                        guessed[i] = '4';
+                        guessed[i] = '0';
                 }
         }
 	return guessed;
 }
 
-void SlangLib::killThreads(){
+/*static void SlangLib::killThreads(int){
 
-	for(int i = 0; i < vecOfThreads.size(), i++){
-
-		pthread_exit(vecOfThreads[i]);
-	}
+	
 }
+*/

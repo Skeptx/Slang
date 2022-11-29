@@ -64,51 +64,54 @@ void *accepted(void *arg) {
 		SlangWrite(sock, "5(START)");
 
 
-                string guessWord;
-                string response;
-                while(guesses <= 6) {
+		string guessWord;
+		string response = "5(START)";
+		while(guesses <= 6) {
 
 
-                        buffer = SlangRead(sock, buffer);
-                        if(strcmp(buffer, "4(QUIT)") && strcmp(buffer, "5(REPLY)")) {
+			SlangRead(sock, buffer);
+			if(!strcmp(buffer, "4(QUIT)")) {
 
 
-                                guessWord = "";
-                                response = "";
-                                for(int i = 2; i <= 6; i++) {
+				free(buffer);
+				close(sock);
+				return NULL;
+			}
+			else if(!strcmp(buffer, "5(REPLY)")) {
 
 
-                                        guessWord += buffer[i];
-                                }
-                                if(isValidWord(guessWord)) {
+				SlangWrite(sock, response.c_str());
+			}
+			else {
 
 
-                                        guessWord = SlangCheck(guessWord, correctAns);
-                                        response = "R(" + guessWord + ")";
-                                        SlangWrite(sock, response.c_str());
-                                        guesses++;
-                                }
-                                else {
-
-                                        response = "5(WRONG)";
-                                        SlangWrite(sock, response.c_str());
-                                }
-                        }
-                        else if(!strcmp(buffer, "4(QUIT)")) {
+				guessWord = "";
+				for(int i = 2; i <= 6; i++) {
 
 
-                                free(buffer);
-                                close(sock);
-                                return NULL;
-                        }
-                        else if(!strcmp(buffer, "5(REPLY)")) {
+					guessWord += buffer[i];
+				}
+				if(isValidWord(guessWord)) {
 
 
-                                SlangWrite(sock, response);
-                        }
-                        // MORE READS AND WRITES
-                        // KEEP TRACK OF NUMBER OF GUESSES
-                }
+					guessWord = SlangCheck(guessWord, correctAns);
+					response = "R(" + guessWord + ")";
+					if (strcmp(guessWord.c_str(), "44444")) {
+						if (guesses == 6) {
+							response = "A(" + guessWord + correctAns + ")";
+						}
+						++guesses;
+					} else {
+						guesses = 8;
+					}
+				}
+				else {
+					response = "5(WRONG)";
+				}
+				SlangWrite(sock, response.c_str());
+			}
+		}
+		SlangRead(sock, buffer);
 	}
 	free(buffer);
 	close(sock);
