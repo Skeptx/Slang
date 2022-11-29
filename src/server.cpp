@@ -70,7 +70,7 @@ void *accepted(void *arg) {
 
 
                         buffer = SlangRead(sock, buffer);
-                        if(!strcmp(buffer, "4(QUIT)") && !strcmp(buffer, "5(REPLY)")) {
+                        if(strcmp(buffer, "4(QUIT)") && strcmp(buffer, "5(REPLY)")) {
 
 
                                 guessWord = "";
@@ -94,14 +94,15 @@ void *accepted(void *arg) {
                                         SlangWrite(sock, response.c_str());
                                 }
                         }
-                        else if(strcmp(buffer, "4(QUIT)")) {
+                        else if(!strcmp(buffer, "4(QUIT)")) {
 
 
                                 cout << "Quitting Server..." << endl;
                                 free(buffer);
                                 close(sock);
+                                return NULL;
                         }
-                        else if(strcmp(buffer, "5(REPLY)")) {
+                        else if(!strcmp(buffer, "5(REPLY)")) {
 
 
                                 SlangWrite(sock, response);
