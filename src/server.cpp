@@ -64,6 +64,8 @@ void *accepted(void *arg) {
 		SlangWrite(sock, "5(START)");
 
 
+                string guessWord;
+                string response;
                 while(guesses <= 6) {
 
 
@@ -71,7 +73,8 @@ void *accepted(void *arg) {
                         if(!strcmp(buffer, "4(QUIT)") && !strcmp(buffer, "5(REPLY)")) {
 
 
-                                string guessWord;
+                                guessWord = "";
+                                response = "";
                                 for(int i = 2; i <= 6; i++) {
 
 
@@ -81,13 +84,27 @@ void *accepted(void *arg) {
 
 
                                         guessWord = SlangCheck(guessWord, correctAns);
-                                        guessWord = "R(" + guessWord + ")";
-                                        SlangWrite(sock, guessWord.c_str());
+                                        response = "R(" + guessWord + ")";
+                                        SlangWrite(sock, response.c_str());
                                         guesses++;
                                 }
                                 else {
-                                        SlangWrite(sock, "5(WRONG)");
+
+                                        response = "5(WRONG)";
+                                        SlangWrite(sock, response.c_str());
                                 }
+                        }
+                        else if(strcmp(buffer, "4(QUIT)")) {
+
+
+                                cout << "Quitting Server..." << endl;
+                                free(buffer);
+                                close(sock);
+                        }
+                        else if(strcmp(buffer, "5(REPLY)")) {
+
+
+                                SlangWrite(sock, response);
                         }
                         // MORE READS AND WRITES
                         // KEEP TRACK OF NUMBER OF GUESSES
