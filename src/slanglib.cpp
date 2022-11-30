@@ -258,14 +258,14 @@ string SlangCheck(string guessed, const string correct) {
 
 
                 if(guessed[i] != '4') {
-					int foundIndex = mutableCorrect.find(guessed[i]);
-					if (foundIndex != string::npos && mutableCorrect[i] != guessed[i]) {
-                        guessed[i] = '2';
-                        mutableCorrect[foundIndex] = ' ';
-					} else {
-						guessed[i] = '0';
-					}
-				}
+                        int foundIndex = mutableCorrect.find(guessed[i]);
+                        if (foundIndex != string::npos && mutableCorrect[i] != guessed[i]) {
+                                guessed[i] = '2';
+                                mutableCorrect[foundIndex] = ' ';
+                        } else {
+                                        guessed[i] = '0';
+                        }
+                }
         }
 	return guessed;
 }
