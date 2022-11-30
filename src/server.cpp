@@ -38,7 +38,6 @@ void readIntoMap() {
 	string fileName = "words.txt";
 	inFile.open(fileName);
 	string word;
-	int count = 0;
 	while(inFile >> word) {
 		stringHash[word] = 1;
 	}
@@ -168,7 +167,7 @@ void *accepted(void *arg) {
 				}
 				else {
                                         // Does not count as attempt
-					response = "5(WRONG)";
+					response = "5(WRONG)";46257
 				}
 				// Sends response string
 				SlangWrite(sock, response.c_str());
