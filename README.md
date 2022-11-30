@@ -18,31 +18,31 @@ Patrick: SERVER
 
 ### How to Compile from "src" Directory
 
-> make
+`make slang`
 
 ### How to Run the Server from "src" Directory
 
-> make start
+`make start`
 
 or
 
-> ./slang-server [port]
+`./slang-server [port]`
 
 e.g.
 
-> ./slang-server 46257
+`./slang-server 46257`
 
 ### How to Run the Client from "src" Directory
 
->make connect
+`make connect`
 
 or
 
-> ./slang-client <host> [port]
+`./slang-client <host> [port]`
 
 e.g.
 
-> ./slang-client acad.kutztown.edu 46257
+`./slang-client acad.kutztown.edu 46257`
 
 ### Design Decisions
 
@@ -52,8 +52,10 @@ The client handles only alphabetical characters.  The client then wraps your gue
 
 ### Known Issues
 
-- There is no error checking for 'fprintf' calls to the client's log file.  We realized this without enough time to update it before the due date.
+- There is no error checking for `fprintf` calls to the client's log file.  We realized this without enough time to update it before the due date.
 - Some terminals cannot access the full client experience due to incompatibilities with ANSI escape codes.  Because of this, user experience will vary.  This is not something that can be standardized by an application.
+- `SlangLib` is vulnerable to being deleted without cleanup if the destructor is called before `killThreads`.
+- There are no other client "themes" (as specified in the `--help` menu) currently implemented other than the default black theme.
 
 ### Communication
 
