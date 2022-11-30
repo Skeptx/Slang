@@ -176,6 +176,9 @@ void *accepted(void *arg) {
 		}
 		SlangRead(sock, buffer);
 	}
+
+
+	// Error checking for locking thread lock
         int err = pthread_mutex_lock(&m);
 	if (err) {
 		fprintf(stderr, "Error: pthread_mutex_lock failed: %s\r\n", strerror(err));
