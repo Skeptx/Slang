@@ -1,3 +1,17 @@
+// Author: Isaiah Rovenolt (with help from Henry Morales and Patrick Perrin)
+// Major: Computer Science
+// Creation Date: 10/24/2022
+// Due Date: 11/29/2022
+// Course: CSC328
+// Professor: Dr. Frye
+// Assignment: NWProgram - Wordle
+// File Name: slanglib.h
+// Purpose: This is the library h file for the NWProgram Wordle Assignment. This has functions
+// 			that both client and server files will utilize.  It initializes client and server
+//			information to communicate with each other.
+
+
+
 #ifndef SLANGLIB_H
 #define SLANGLIB_H
 

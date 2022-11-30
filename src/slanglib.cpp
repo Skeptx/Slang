@@ -1,3 +1,15 @@
+// Author: Isaiah Rovenolt (with help from Henry Morales and Patrick Perrin)
+// Major: Computer Science
+// Creation Date: 10/24/2022
+// Due Date: 11/29/2022
+// Course: CSC328
+// Professor: Dr. Frye
+// Assignment: NWProgram - Wordle
+// File Name: slanglib.cpp
+// Purpose: This is the library cpp file for the NWProgram Wordle Assignment. This has functions
+// 			that both client and server files will utilize.  It initializes client and server
+//			information to communicate with each other.
+
 #include <arpa/inet.h>
 #include <ctype.h>
 #include <iostream>
@@ -258,14 +270,14 @@ string SlangCheck(string guessed, const string correct) {
 
 
                 if(guessed[i] != '4') {
-                        int foundIndex = mutableCorrect.find(guessed[i]);
-                        if (foundIndex != string::npos && mutableCorrect[i] != guessed[i]) {
-                                guessed[i] = '2';
-                                mutableCorrect[foundIndex] = ' ';
-                        } else {
-                                        guessed[i] = '0';
-                        }
-                }
+					int foundIndex = mutableCorrect.find(guessed[i]);
+					if (foundIndex != string::npos && mutableCorrect[i] != guessed[i]) {
+                        guessed[i] = '2';
+                        mutableCorrect[foundIndex] = ' ';
+					} else {
+						guessed[i] = '0';
+					}
+				}
         }
 	return guessed;
 }
