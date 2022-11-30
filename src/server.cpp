@@ -167,7 +167,7 @@ void *accepted(void *arg) {
 				}
 				else {
                                         // Does not count as attempt
-					response = "5(WRONG)";46257
+					response = "5(WRONG)";
 				}
 				// Sends response string
 				SlangWrite(sock, response.c_str());
