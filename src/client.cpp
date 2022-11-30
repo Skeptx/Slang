@@ -17,6 +17,7 @@ using namespace std;
 void clean(int signo);
 void print(int signo);
 void print_key(short int position_x, short int position_y, short int color_b, short int color_f, short int character, short int current_width);
+void print_message();
 char set_theme(char *arg);
 char read_from_server(char *buffer, char const * const expected);
 char write_to_server(char *buffer, char const * const expected);
@@ -177,32 +178,29 @@ int main(int argc, char **argv) {
 	opts += 16;
 	output = (const char **)malloc(7 * sizeof(char *));
 	keyboard = (char *)malloc(52);
-	history = (char *)malloc(30);
+	history = (char *)malloc(36);
 	results = (char *)calloc(35, 1);
 	words = (char *)malloc(35);
+	signal(SIGINT, print);
+	signal(SIGWINCH, print);
 	signal(SIGKILL, clean);
 	signal(SIGQUIT, clean);
 	signal(SIGTERM, clean);
 	signal(SIGTSTP, clean);
-	signal(SIGINT, print);
-	signal(SIGWINCH, print);
 	output[0] = "Type a 5-letter word and press enter.\r\n";
 	output[1] = "Checking your guess...";
 	output[2] = "You must guess a real word!";
 	output[3] = "Would you like to play again?\r\n";
-	output[4] = "Congratulations, you win!\r\n";
-	output[5] = "Sorry, you lose.\r\n";
+	output[4] = "Congratulations, you guessed \"%s\"!\r\n";
+	output[5] = "You lose, the word was \"%s\".\r\n";
 	output[6] = "Please type \"Y\" or \"N\".";
 	strcpy(keyboard, "QWERTYUIOPASDFGHJKLZXCVBNM");
 	memset(keyboard + 26, 6, 26);
 	memset(results + 30, 16, 5);
 	memset(history, 32, 30);
 	memset(words, 32, 30);
-	words[30] = 'S';
-	words[31] = 'L';
-	words[32] = 'A';
-	words[33] = 'N';
-	words[34] = 'G';
+	history[35] = 0;
+	strncpy(words + 30, "SLANG", 5);
 	if (read_from_server(buffer, "5(HELLO)")) {
 		fprintf(stderr, "\r\nError: \"5(HELLO)\" expected (got \"%s\")\r\n", buffer);
 		clean(-4);
@@ -257,8 +255,8 @@ int main(int argc, char **argv) {
 			}
 		}
 	}*/
-	int input = 0;
-	while (input != 27) {
+	int input = 89;
+	while (input == 89) {
 		strcpy(buffer, "5(READY)");
 		if (write_to_server(buffer, "5(START)")) {
 			fprintf(stderr, "\r\nError: \"5(START)\" expected (got \"%s\")\r\n", buffer);
@@ -270,11 +268,7 @@ int main(int argc, char **argv) {
 		memset(results + 30, 16, 5);
 		memset(history, 32, 30);
 		memset(words, 32, 30);
-		words[30] = 'S';
-		words[31] = 'L';
-		words[32] = 'A';
-		words[33] = 'N';
-		words[34] = 'G';
+		strncpy(words + 30, "SLANG", 5);
 		word = 0;
 		while (word < 6) {
 			memset(results + word * 5, 6, 5);
@@ -334,7 +328,7 @@ int main(int argc, char **argv) {
 						--letter;
 						words[v] = history[v];
 					} else {
-						if (input > 96 && input < 123) {
+						if (input > 96) {
 							input -= 32;
 						}
 						if (input > 64 && input < 91) {
@@ -359,41 +353,51 @@ int main(int argc, char **argv) {
 			}
 			status = 3;
 			print(-1);
-			
-			
 			char err = write_to_server(buffer, "5(WRONG)");
-			
-			
 			if (err) {
-				results[word * 5] = buffer[2] - 48;
+				char result = buffer[2] - 48;
+				char key = 26 + strchr(keyboard, words[word * 5]) - keyboard;
+				char correct = result;
+				results[word * 5] = result;
+				if (result > keyboard[key] || keyboard[key] == 6) {
+					keyboard[key] = result ? result + 6 : 0;
+				}
 				print(-1);
-				short int correct = buffer[2];
 				for (int i = 3; i < 7; ++i) {
-					correct += buffer[i];
 					usleep(100000);
-					results[word * 5 - 2 + i] = buffer[i] - 48;
+					result = buffer[i] - 48;
+					key = 26 + strchr(keyboard, words[word * 5 - 2 + i]) - keyboard;
+					correct += result;
+					results[word * 5 - 2 + i] = result;
+					if (result > keyboard[key] || keyboard[key] == 6) {
+						keyboard[key] = result ? result + 6 : 0;
+					}
 					print(-1);
 				}
 				if (buffer[0] == 'A') {
+					strncpy(history + 30, buffer + 7, 5);
+					memset(keyboard + 26, 0, 26);
 					status = 5;
 					for (int i = 7; i < 11; ++i) {
+						usleep(100000);
 						words[23 + i] = buffer[i];
 						results[23 + i] = 13;
 						print(-1);
-						usleep(100000);
 					}
 					words[34] = buffer[11];
 					results[34] = 13;
 					print(-1);
 					break;
 				}
-				if (correct == 260) {
+				if (correct == 20) {
+					strncpy(history + 30, buffer + 7, 5);
+					memset(keyboard + 26, 0, 26);
 					status = 4;
 					for (int i = 0; i < 4; ++i) {
+						usleep(100000);
 						words[30 + i] = words[word * 5 + i];
 						results[30 + i] = 10;
 						print(-1);
-						usleep(100000);
 					}
 					words[34] = words[word * 5 + 4];
 					results[34] = 10;
@@ -408,20 +412,24 @@ int main(int argc, char **argv) {
 				status = 2;
 			}
 		}
-		opts % 2 ? wgetch(window) : getc(stdin);
-		// WAIT FOR NEXT INPUT OR SOME SHIT
+		while (input != 27 && input != 78 && input != 89) {
+			input = opts % 2 ? wgetch(window) : getc(stdin);
+			if (input > 96) {
+				input -= 32;
+			}
+		}
 	}
 	clean(-1);
 	return EXIT_SUCCESS;
 }
 
 void clean(int signo) {
+	signal(SIGINT, SIG_DFL);
+	signal(SIGWINCH, SIG_DFL);
 	signal(SIGKILL, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
 	signal(SIGTERM, SIG_DFL);
 	signal(SIGTSTP, SIG_DFL);
-	signal(SIGINT, SIG_DFL);
-	signal(SIGWINCH, SIG_DFL);
 	if (opts % 2) {
 		mousemask(mouse_history, NULL);
 		echo();
@@ -497,10 +505,11 @@ void print(int signo) {
 			for (short int i = 19; i < 26; ++i) {
 				print_key(origin_x - 91 + 7 * i, origin_y + 14, keyboard[i + 26] + (i + 1) % 2, keyboard[i + 26] ? 19 : 20, keyboard[i], 0);
 			}
-			print_key(origin_x + 96, origin_y + 14, letter == 0 ? 0 : 16, letter == 0 ? 20 : 19, 'S', -5);
+			print_key(origin_x + 96, origin_y + 14, letter == 0 || status > 3 ? 0 : 16, letter == 0 || status > 3 ? 20 : 19, 'S', -5);
 			printf("\e[%d;%dHBACKSPACE", origin_y + 15, origin_x + 94);
-			print_key(origin_x + 70, origin_y + 18, letter == -5 ? 16 : 1, letter == -5 ? 19 : 20, 'T', -26);
+			print_key(origin_x + 70, origin_y + 18, letter == -5 && status < 4 ? 16 : 1, letter == -5 && status < 4 ? 19 : 20, 'T', -26);
 			printf("\e[%d;%dHENTER\e[m\e[H", origin_y + 19, origin_x + 70);
+			print_message();
 		}
 	} else {
 		for (int i = 0; i < 6; ++i) {
@@ -523,20 +532,19 @@ void print(int signo) {
 			fputs("\r\n", stdout);
 		}
 		switch(status) {
-		case 1:
-			fputs(output[0], stdout);
-		case 2:
-			fputs(output[2], stdout);
+		case 5:
+		case 4:
+			printf(output[status], history + 30);
+			fputs(output[3], stdout);
+			fputs(output[6], stdout);
 			break;
 		case 3:
 			fputs(output[1], stdout);
 			break;
-		case 4:
-		case 5:
-			fputs(output[status], stdout);
-			fputs(output[3], stdout);
-			fputs(output[6], stdout);
-			break;
+		case 2:
+			fputs(output[2], stdout);
+		case 1:
+			fputs(output[0], stdout);
 		};
 		fputs("\e[H", stdout);
 	}
@@ -559,6 +567,29 @@ void print_key(short int position_x, short int position_y, short int color_b, sh
 			}
 		}
 	}
+}
+
+void print_message() {
+	short int color_b;
+	if (status == 5) {
+		color_b = 14;
+	} else if (status == 4) {
+		color_b = 11;
+	} else {
+		color_b = 17;
+	}
+	printf("\e[48;2;%d;%d;%dm", (theme[color_b] >> 16) % 256, (theme[color_b] >> 8) % 256, theme[color_b] % 256);
+	printf("\e[%d;%dH            ", origin_y + 22, origin_x + 48);
+	printf("\e[%d;%dH  ", origin_y + 23, origin_x + 46);
+	printf("\e[%d;%dH  ", origin_y + 27, origin_x + 46);
+	printf("\e[%d;%dH                                    ", origin_y + 28, origin_x + 48);
+	++color_b;
+	printf("\e[48;2;%d;%d;%dm", (theme[color_b] >> 16) % 256, (theme[color_b] >> 8) % 256, theme[color_b] % 256);
+	printf("\e[%d;%dH                                    ", origin_y + 22, origin_x + 60);
+	printf("\e[%d;%dH  ", origin_y + 27, origin_x + 96);
+	printf("\e[%d;%dH  ", origin_y + 23, origin_x + 96);
+	printf("\e[%d;%dH            ", origin_y + 28, origin_x + 84);
+	color_b -= 2;
 }
 
 char set_theme(char *arg) {
@@ -584,8 +615,8 @@ char set_theme(char *arg) {
 		theme[3] = 2631700;
 		theme[4] = 1651225;
 		theme[5] = 1320980;
-		theme[6] = 3289650;
-		theme[7] = 2631720;
+		theme[6] = 4934475;
+		theme[7] = 4276545;
 		theme[8] = 9868850;
 		theme[9] = 8881965;
 		theme[10] = 3315250;
@@ -634,39 +665,33 @@ char write_to_server(char *buffer, char const * const expected) {
 
 char read_from_server(char *buffer, char const * const expected) {
 	SlangRead(slang->getSocket(), buffer);
-	fprintf(file, "Read: \"%s\"\r\n", buffer);
+	fprintf(file, "Read: %s expected (got \"%s\")\r\n", expected, buffer);
 	if (strcmp(buffer, expected)) {
 		if (buffer[0] == 'A' && buffer[1] == '(' && buffer[12] == ')') {
-			if (strcmp(expected, "5(WRONG)")) {
+			if (word < 5 || strcmp(expected, "5(WRONG)")) {
 				fprintf(stderr, "\r\nError: \"%s\" expected (got \"%s\")\r\n", expected, buffer);
 				clean(-3);
 			}
 			return 1;
 		} else if (buffer[1] == '(' && buffer[7] == ')') {
 			if (buffer[0] == '5') {
-				if (!strcmp(buffer, "5(HELLO)")) {
-					fprintf(stderr, "\r\nError: \"%s\" expected (got \"5(HELLO)\")\r\n", expected);
-					clean(-3);
-				} else if (!strcmp(buffer, "5(START)")) {
-					fprintf(stderr, "\r\nError: \"%s\" expected (got \"5(START)\")\r\n", expected);
-					clean(-3);
-				} else if (!strcmp(buffer, "5(WRONG)")) {
-					fprintf(stderr, "\r\nError: \"%s\" expected (got \"5(WRONG)\")\r\n", expected);
-					clean(-3);
-				} else if (!strcmp(buffer, "5(RESET)")) {
-					fprintf(stderr, "\r\nError: \"%s\" expected (got \"5(RESET)\")\r\n", expected);
-					clean(-3);
-				} else if (!strcmp(buffer, "5(REPLY)")) {
+				if (!strcmp(buffer, "5(REPLY)")) {
 					return 2;
 				} else if (!strcmp(buffer, "5(DEATH)")) {
 					fputs("\r\nServer shutdown\r\n", stderr);
 					clean(-2);
+				} else {
+					fprintf(stderr, "\r\nError: \"%s\" expected (got \"%s\")\r\n", expected, buffer);
+					clean(-3);
 				}
 				clean(-3);
 			}
 			if (strcmp(expected, "5(WRONG)")) {
 				fprintf(stderr, "\r\nError: \"%s\" expected (got \"%s\")\r\n", expected, buffer);
 				clean(-3);
+			}
+			if (word == 5) {
+				
 			}
 			return 1;
 		}

@@ -112,8 +112,24 @@ void *accepted(void *arg) {
 		}
 		SlangRead(sock, buffer);
 	}
+	int err = pthread_mutex_lock(&m);
+	if (err) {
+		fprintf(stderr, "Error: pthread_mutex_lock failed: %s\r\n", strerror(err));
+	}
 	free(buffer);
 	close(sock);
+	vector<int>::iterator itSocket = find(vecOfSockets.begin(), vecOfSockets.end(), sock);
+	vector<pthread_t>::iterator itThread = find(vecOfThreads.begin(), vecOfThreads.end(), pthread_self());
+	if (itSocket != vecOfSockets.end()) {
+		vecOfSockets.erase(itSocket);
+	}
+	if (itThread != vecOfThreads.end()) {
+		vecOfThreads.erase(itThread);
+	}
+	err = pthread_mutex_unlock(&m);
+	if (err) {
+		fprintf(stderr, "Error: pthread_mutex_unlock failed: %s\r\n", strerror(err));
+	}
 	return NULL;
 }
 

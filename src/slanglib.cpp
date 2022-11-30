@@ -17,10 +17,14 @@
 #include "slanglib.h"
 
 SlangLib::SlangLib(int portNumber, void *(*accepted)(void *)) : portNumber(portNumber), accepted(accepted) {
+	int err = pthread_mutex_init(&m, NULL);
+	if (err) {
+		fprintf(stderr, "Error: pthread_mutex_init failed: %s\r\n", strerror(err));
+		return;
+	}
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if(sock == -1){
 		perror("Error: socket failed");
-		open = false;
 		return;
 	}
 	struct sockaddr_in *addr = (struct sockaddr_in *)calloc(1, sizeof(struct sockaddr_in));
@@ -30,39 +34,47 @@ SlangLib::SlangLib(int portNumber, void *(*accepted)(void *)) : portNumber(portN
 	if (bind(sock, (struct sockaddr *)addr, sizeof(struct sockaddr))) {
 		perror("Error: bind failed");
 		free(addr);
-		open = false;
 		return;
 	}
 	free(addr);
 	if (listen(sock, 1280)) {
 		perror("Error: listen failed");
-		open = false;
 		return;
 	}
-	open = true;
 	while (true) {
 		int newsock = accept(sock, NULL, NULL);
 		if (newsock < 0) {
 			perror("Error: accept failed");
 			continue;
 		}
+		err = pthread_mutex_lock(&m);
+		if (err) {
+			fprintf(stderr, "Error: pthread_mutex_lock failed: %s\r\n", strerror(err));
+		}
 		pthread_t tid;
-		int err = pthread_create(&tid, NULL, accepted, &newsock);
-		vecOfThreads.push_back(tid);
+		err = pthread_create(&tid, NULL, accepted, &newsock);
 		if (err) {
 			fprintf(stderr, "Error: pthread_create failed: %s\r\n", strerror(err));
+		} else {
+			vecOfThreads.push_back(tid);
+			vecOfSockets.push_back(newsock);
+		}
+		err = pthread_mutex_unlock(&m);
+		if (err) {
+			fprintf(stderr, "Error: pthread_mutex_unlock failed: %s\r\n", strerror(err));
 		}
 	}
 }
 
 SlangLib::SlangLib(int portNumber, char *hostname) : portNumber(portNumber), hostname(hostname) {
-	signal(SIGKILL,killThreads);
-	signal(SIGTERM,killThreads);
-	signal(SIGINT,killThreads);
+	signal(SIGINT, killThreads);
+	signal(SIGKILL, killThreads);
+	signal(SIGQUIT, killThreads);
+	signal(SIGTERM, killThreads);
+	signal(SIGTSTP, killThreads);
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if(sock == -1){
 		perror("Error: socket failed");
-		open = false;
 		return;
 	}
 	struct addrinfo *res = (struct addrinfo *)malloc(sizeof(struct addrinfo));
@@ -74,35 +86,15 @@ SlangLib::SlangLib(int portNumber, char *hostname) : portNumber(portNumber), hos
 	if (err) {
 		fprintf(stderr, "Error: getaddrinfo failed: %s\r\n", gai_strerror(err));
 		freeaddrinfo(res);
-		open = false;
 		return;
 	}
 	((struct sockaddr_in *)res->ai_addr)->sin_port = htons(portNumber);
 	if (connect(sock, (struct sockaddr *)res->ai_addr, sizeof(struct sockaddr))) {
 		perror("Error: connect failed");
 		freeaddrinfo(res);
-		open = false;
 		return;
 	}
 	freeaddrinfo(res);
-	open = true;
-
-
-	/*string word = wordleRead();
-	cout << "CLIENT RECV: \"" << word << "\"\n";
-	sleep(1);
-	cout << "CLIENT SEND: \"5(READY)\"\n";
-	sleep(1);
-	wordleWrite("5(READY)");
-	close(sock);
-	freeaddrinfo(hints);
-	freeaddrinfo(baseConnection);
-	sleep(1);*/
-
-}
-
-bool SlangLib::isOpen() {
-	return open;
 }
 
 int SlangLib::getSocket() {
@@ -115,9 +107,9 @@ char *SlangRead(int sockfd, char * buffer) {
 	}
 	char *i = buffer;
 	while (i - buffer < 13) {
-		int reading = read(sockfd, i, buffer - i + 13);
-		if (reading > 0) {
-			i += reading;
+		int reading = read(sockfd, i, 1);
+		if (reading == 1) {
+			++i;
 			if (i[-1] == ')') {
 				break;
 			}
@@ -173,27 +165,15 @@ string SlangCheck(string guessed, const string correct) {
         for(int i = 0; i < mutableCorrect.length(); i++) {
 
 
-                if(guessed[i] == '2' || guessed[i] == '4') {
-
-
-                        continue;
-                }
-                if((foundIndex = mutableCorrect.find(guessed[i])) !=
-                        string::npos && mutableCorrect[i] != guessed[i]) {
-
-
+                if(guessed[i] != '4') {
+					int foundIndex = mutableCorrect.find(guessed[i]);
+					if (foundIndex != string::npos && mutableCorrect[i] != guessed[i]) {
                         guessed[i] = '2';
                         mutableCorrect[foundIndex] = ' ';
-                }
-        }
-        for(int i = 0; i < mutableCorrect.length(); i++) {
-
-
-                if(guessed[i] != '2' && guessed[i] != '4') {
-
-
-                        guessed[i] = '0';
-                }
+					} else {
+						guessed[i] = '0';
+					}
+				}
         }
 	return guessed;
 }
