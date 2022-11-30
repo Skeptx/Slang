@@ -17,8 +17,8 @@
 #include <iostream>
 #include <random>
 #include <fstream>
-#include <unordered_map> // Necessary only for constant time search
-#include <vector> // Necessary for subscripting on random element
+#include <unordered_map>
+#include <vector>
 
 #include "slanglib.h"
 
@@ -176,10 +176,30 @@ void *accepted(void *arg) {
 		}
 		SlangRead(sock, buffer);
 	}
-
-	// Freeing buffer and closing socket once game is complete
+        int err = pthread_mutex_lock(&m);
+	if (err) {
+		fprintf(stderr, "Error: pthread_mutex_lock failed: %s\r\n", strerror(err));
+	}
 	free(buffer);
 	close(sock);
+
+
+	// Iterators used to clean up sockets/threads
+	vector<int>::iterator itSocket = find(vecOfSockets.begin(), vecOfSockets.end(), sock);
+	vector<pthread_t>::iterator itThread = find(vecOfThreads.begin(), vecOfThreads.end(), pthread_self());
+	if (itSocket != vecOfSockets.end()) {
+		vecOfSockets.erase(itSocket);
+	}
+	if (itThread != vecOfThreads.end()) {
+		vecOfThreads.erase(itThread);
+	}
+
+
+	// Error checking for unlocking thread lock
+	err = pthread_mutex_unlock(&m);
+	if (err) {
+		fprintf(stderr, "Error: pthread_mutex_unlock failed: %s\r\n", strerror(err));
+	}
 	return NULL;
 }
 
@@ -190,7 +210,7 @@ void *accepted(void *arg) {
 //      char** argv - array containing command-line arguments
 // Return Value: int - return status of program
 int main(int argc, char **argv) {
-	int portNumber = 0;
+	int portNumber = 46257;
 	if(argc > 1) {
 		portNumber = atoi(argv[1]);
 
