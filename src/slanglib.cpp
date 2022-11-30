@@ -179,6 +179,8 @@ int SlangLib::getSocket() {
 /*  Return Value:  char* - the information sent by either client/server       */
 /******************************************************************************/
 char *SlangRead(int sockfd, char * buffer) {
+	int savedErrno = errno;
+	errno = -1;
 	if (!buffer) {
 		buffer = (char *)malloc(14);
 	}
@@ -197,6 +199,9 @@ char *SlangRead(int sockfd, char * buffer) {
 			break;
 		}
 	}
+	if (errno != ENOTCONN && savedErrno != ENOTCONN) {
+		errno = savedErrno;
+	}
 	i[0] = 0;
 	return buffer;
 }
@@ -214,6 +219,8 @@ char *SlangRead(int sockfd, char * buffer) {
 /*  Return Value:  none 												      */
 /******************************************************************************/
 void SlangWrite(int sockfd, char const * const message) {
+	int savedErrno = errno;
+	errno = -1;
 	int len = strlen(message);
 	char const *i = message;
 	while (i - message < len) {
@@ -226,6 +233,9 @@ void SlangWrite(int sockfd, char const * const message) {
 			}
 			break;
 		}
+	}
+	if (errno != ENOTCONN && savedErrno != ENOTCONN) {
+		errno = savedErrno;
 	}
 }
 
