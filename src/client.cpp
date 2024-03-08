@@ -914,7 +914,7 @@ char set_theme(char *arg) {
 		if (theme || len > 5) {
 			return 1;
 		}
-		for (short int i = 0; i < len; i++) {
+		for (short int i = 0; i < len; ++i) {
 			lower[i] = arg[i] > 96 ? arg[i] - 32 : arg[i];
 		}
 		lower[len] = 0;
